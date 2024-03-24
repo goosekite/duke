@@ -31,14 +31,15 @@ public class Task {
 
     public void deleteTask(int taskNo) throws DukeException{
 
+        if (isValidTaskNumber(taskNo)) {
+            System.out.println("I've deleted " + tasksStorage.get(taskNo - 1));
+            tasksStorage.remove(taskNo - 1);
+            taskSize--;
+        }
 
-            if (isValidTaskNumber(taskNo)) {
-                System.out.println("I've deleted " + tasksStorage.get(taskNo - 1));
-                tasksStorage.remove(taskNo - 1);
-                taskSize--;
-            }
-
-
+        else{
+            System.out.println("Sorry, There's no such task number");
+        }
 
     }
 

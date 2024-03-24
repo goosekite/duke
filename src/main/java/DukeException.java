@@ -15,7 +15,7 @@ public class DukeException extends Exception{
         return new DukeException("Task number is wrong");
     }
 
-    public static DukeException expectIntbutInputString() {
+    public static DukeException expectIntegerButInputIsString() {
         return new DukeException("Expected number ");
     }
 }

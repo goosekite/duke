@@ -9,11 +9,17 @@ public class Duke{
 
     private String chatBotName = "Jenkins";
     public static String userInput = "";
-    public static Boolean chatBotOnline = false;
+    public static Boolean chatbotIsOnline = false;
     public static byte blankUserInputCount = 0;
 
     public Duke(){
-        chatBotOnline = false;
+        chatbotIsOnline = false;
+        System.out.println("       _            _    _           ");
+        System.out.println("      | |          | |  (_)          ");
+        System.out.println("      | | ___ _ __ | | ___ _ __  ___ ");
+        System.out.println("  _   | |/ _ \\ '_ \\| |/ / | '_ \\/ __|");
+        System.out.println(" | |__| |  __/ | | |   <| | | | \\__ \\");
+        System.out.println("  \\____/ \\___|_| |_|_|\\_\\_|_| |_|___/");
     }
 
     public String getChatBotName(){
@@ -22,7 +28,7 @@ public class Duke{
 
     public void changeChatBotName(){
         System.out.println(getChatBotName() + ": Sure! Please key in my new name");
-        Scanner sc = new Scanner(System.in); //open scanner!
+        Scanner sc = new Scanner(System.in);
         userInput = sc.nextLine();
 
         String name = userInput.trim();
@@ -30,11 +36,10 @@ public class Duke{
 
         System.out.println(getChatBotName() + ": Right away!");
         sc.close();
-
     }
 
     public void powerOn(){
-        chatBotOnline = true;
+        chatbotIsOnline = true;
         chatBotGreetings();
         task = new Task();
         listenForInput();
@@ -73,7 +78,6 @@ public class Duke{
         System.out.println("____________________________________________________________");
     }
 
-
     //Level 0-1 Rename
     public void setChatBotName(String userInput){
         this.chatBotName = userInput;
@@ -85,7 +89,6 @@ public class Duke{
         System.out.println("What can I do for you?");
     }
 
-    //Exhaustive HELP list for user, easy reference for programmers
     public void help(){
         System.out.println(getChatBotName() + ": Certainly! Here are all commands that I can understand:");
         System.out.println("help or {.} - prints this help list to help recall");
@@ -102,122 +105,122 @@ public class Duke{
         System.out.println("Delete [Task number] - Delete Task");
     }
 
-    //case 1 User press enters 3 times, bots impatient then quits.
-    //case 2 user enters "bye"
     public void quitProgram(){
-        chatBotOnline = false;
+        chatbotIsOnline = false;
         System.out.print(getChatBotName() + ": Bye. Hope to see you again soon!\n");
+    }
+
+    public void markUserIndex(String index){
+        task.markAsDone(index);
+    }
+
+    public void keywordDelete(String[] keyword){
+        try {
+            int taskNumber = Integer.parseInt(keyword[1]); //problems comes from converting string to number
+            task.deleteTask(taskNumber);
+        } catch (DukeException e) {
+            throw new RuntimeException(e);
+        } catch (NumberFormatException e) {
+            DukeException.getError(DukeException.invalidTaskNumber());
+        } catch (IllegalArgumentException e) {
+            DukeException.getError(DukeException.expectIntegerButInputIsString());
+        }
+    }
+
+    public void keywordBy(){
+        Pattern pattern = Pattern.compile("(.+) by (.+)");
+        Matcher matcher = pattern.matcher(userInput);
+
+        if (matcher.find()) {
+
+            String eventDescription = matcher.group(1);
+            String deadline = matcher.group(2);
+
+            Deadline d = new Deadline(eventDescription, deadline);
+            task.createTask(d);
+            System.out.print("Deadline ");
+            echoUserInputAdded(userInput);
+        }
+
+        else {
+            System.out.println("I noticed your intent to create a deadline with \"by\"");
+            System.out.println("Please input as follows: [Task] by [timing]");
+
+        }
+    }
+
+    public void keywordFromTo(){
+        Pattern pattern = Pattern.compile("(.+) from (.+) to (.+)");
+        Matcher matcher = pattern.matcher(userInput);
+
+        if (matcher.find()) {
+
+            String eventDescription = matcher.group(1);
+            String start = matcher.group(2);
+            String end = matcher.group(3);
+
+            Event event = new Event(eventDescription, start, end);
+            task.createTask(event);
+
+            System.out.print("Event ");
+            echoUserInputAdded(userInput);
+        }
+
+        else {
+            System.out.println("Seems like you want to create an event with \"from\" & \"to\"");
+            System.out.println("Please input as follows: [Task] from [time] to [time]");
+        }
+    }
+
+    public void keywordTask(){
+        ToDo todo = new ToDo(userInput);
+        task.createTask(todo);
+        System.out.print("Task to do ");
+        echoUserInputAdded(userInput);
     }
 
     public void scanKeyword(String userInput)  {
         blankUserInputCount = 0; // resets inpatient meter
-        boolean markedEvent = false; //important flag. #1 Don't confuse (mark, deadlines and events) with Task.
+        boolean isMarkScenario = false, isDeadlineEvent = false; //Both flags must be false to confirm keyword [Task]
+
         String[] keyword = userInput.split(" ", 2);
 
-
-
-        //Level 4 Mark
+        //Level 4-0 Mark
         switch (keyword[0]){
             case "mark":
             case "unmark":
-                task.markAsDone(keyword[1]);
-                markedEvent = true;
+                markUserIndex(keyword[1]);
+                isMarkScenario = true;
                 break;
             case "delete":
-                try {
-                int taskNumber = Integer.parseInt(keyword[1]); //problems comes from converting string to number
-                task.deleteTask(taskNumber);
-                } catch (DukeException e) {
-                    throw new RuntimeException(e);
-                } catch (NumberFormatException e) {
-                    DukeException.getError(DukeException.invalidTaskNumber());
-                } catch (IllegalArgumentException e) {
-                    DukeException.getError(DukeException.expectIntbutInputString());
-                }
-
-//                finally {
-//                    System.out.println("Sorry, There's no such task number");
-//                }
-                markedEvent = true; //corner case delete [No] should not be added as task
-                task.printWordDiary();
-
+                keywordDelete(keyword);
+                isMarkScenario = true;
         }
 
         // Level 4-2 Deadlines
         if (userInput.contains("by ")){
-
-            Pattern pattern = Pattern.compile("(.+) by (.+)");
-            Matcher matcher = pattern.matcher(userInput);
-
-            if (matcher.find()) {
-
-                String eventDescription = matcher.group(1);
-                String deadline = matcher.group(2);
-
-                Deadline d = new Deadline(eventDescription, deadline);
-                task.createTask(d);
-                System.out.print("Deadline ");
-                echoUserInputAdded(userInput);
-            }
-
-            else {
-                System.out.println("I noticed your intent to create a deadline with \"by\"");
-                System.out.println("Please input as follows: [Task] by [timing]");
-                markedEvent = true; //corner case - by from to
-            }
-
+            keywordBy();
+            isDeadlineEvent = true;
         }
 
         // Level 4-3 Events
         if (userInput.contains("from ") && userInput.contains("to ")){
-            Pattern pattern = Pattern.compile("(.+) from (.+) to (.+)");
-            Matcher matcher = pattern.matcher(userInput);
-
-            if (matcher.find()) {
-
-                String eventDescription = matcher.group(1);
-                String start = matcher.group(2);
-                String end = matcher.group(3);
-
-                Event event = new Event(eventDescription, start, end);
-                task.createTask(event);
-
-                System.out.print("Event ");
-                echoUserInputAdded(userInput);
-            }
-
-            else {
-                System.out.println("Seems like you want to create an event with \"from\" & \"to\"");
-                System.out.println("Please input as follows: [Task] from [time] to [time]");
-                markedEvent = true; //corner case from from to to
-            }
+            keywordFromTo();
+            isDeadlineEvent = true; //corner case from from to to
         }
 
         // Level 4-1 Task To do
-        if (!markedEvent){
-            ToDo todo = new ToDo(userInput);
-            task.createTask(todo);
-            System.out.print("Task to do ");
-            echoUserInputAdded(userInput);
+        if (!isMarkScenario && !isDeadlineEvent){
+            keywordTask();
         }
-
-/*
-            //case: future implementations
-            else if (true){
-                //future implementations do something
-            }
-*/
     }
-
-
 
     public void listenForInput() {
 
         drawLine();
         Scanner sc = new Scanner(System.in);
         userInput = sc.nextLine();
-
-            String trimmedUserInput = userInput.trim();
+        String trimmedUserInput = userInput.trim();
 
             if (userInput.isBlank()) {
                 botGetsImpatient(blankUserInputCount++);
@@ -243,16 +246,15 @@ public class Duke{
                 scanKeyword(trimmedUserInput);
             }
 
-            //recursive on purpose until user terminates using "bye"
-            if (chatBotOnline){
+            sc.close();
+
+            if (chatbotIsOnline){ //quitProgram() when input "bye" or empty input 3 times
                 listenForInput();
             }
-
     }
 
     public static void main(String[] args) {
         Duke Jenkins = new Duke();
         Jenkins.powerOn();
     }
-
 }
