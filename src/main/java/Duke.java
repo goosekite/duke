@@ -5,7 +5,9 @@ import java.util.regex.Pattern;
 
 
 public class Duke{
+//    private Ui ui;
     private static Task task;
+
 
     private String chatBotName = "Jenkins";
     public static String userInput = "";
@@ -13,6 +15,7 @@ public class Duke{
     public static byte blankUserInputCount = 0;
 
     public Duke(){
+
         chatbotIsOnline = false;
         System.out.println("       _            _    _           ");
         System.out.println("      | |          | |  (_)          ");
@@ -254,6 +257,9 @@ public class Duke{
     }
 
     public static void main(String[] args) {
+        Storage s = new Storage();
+        s.tryStorage();
+
         Duke Jenkins = new Duke();
         Jenkins.powerOn();
     }
