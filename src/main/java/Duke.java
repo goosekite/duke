@@ -9,7 +9,8 @@ import java.util.regex.Pattern;
 public class Duke{
 
     private static Task task;
-    protected static JenkinsUI ui = new JenkinsUI(); //UI persist until program ends
+    private JenkinsUI ui;
+
 
     public static String userInput = "";
     public static Boolean chatbotIsOnline = false;
@@ -17,20 +18,21 @@ public class Duke{
 
 
     public Duke(){
+
         chatbotIsOnline = false;
 
-        ui.printLogo();
+        JenkinsUI.printLogo();
     }
 
     public void changeChatBotName(){
-        System.out.println(ui.getChatBotName() + ": Sure! Please key in my new name");
+        System.out.println(JenkinsUI.getChatBotName() + ": Sure! Please key in my new name");
         Scanner sc = new Scanner(System.in);
         userInput = sc.nextLine();
 
         String name = userInput.trim();
         ui.setChatBotName(name);
 
-        System.out.println(ui.getChatBotName() + ": Right away!");
+        System.out.println(JenkinsUI.getChatBotName() + ": Right away!");
         sc.close();
     }
 
@@ -38,14 +40,14 @@ public class Duke{
         chatbotIsOnline = true;
         task = new Task();
 
-        ui.chatBotSaysHello();
+        JenkinsUI.chatBotSaysHello();
 
         listenForInput();
     }
 
     public void quitProgram(){
         chatbotIsOnline = false;
-        ui.chatBotSaysBye();
+        JenkinsUI.chatBotSaysBye();
     }
 
     //Extra 1 - Impatience Meter
@@ -81,12 +83,12 @@ public class Duke{
 
 
     public void help(){
-        System.out.println(ui.getChatBotName() + ": Certainly! Here are all commands that I can understand:");
+        System.out.println(JenkinsUI.getChatBotName() + ": Certainly! Here are all commands that I can understand:");
         System.out.println("help or {.} - prints this help list to help recall");
         System.out.println("bye - exits program --- tap {ENTER} 3 times)");
         System.out.println("tap {ENTER} 3 times to exit program quickly");
 
-        ui.drawLine();
+        JenkinsUI.drawLine();
 
         System.out.println("[Task] - records Tasks");
         System.out.println("[Task] by [timing] - records Deadlines");
@@ -235,7 +237,7 @@ public class Duke{
     }
 
     public void listenForInput() {
-        ui.drawLine();
+        JenkinsUI.drawLine();
 
         Scanner sc = new Scanner(System.in);
         userInput = sc.nextLine();
@@ -247,6 +249,7 @@ public class Duke{
         Storage s = new Storage();
         s.tryStorage();
 
+        JenkinsUI.chatBotSaysHello();
         Duke Jenkins = new Duke();
         Jenkins.powerOn();
     }

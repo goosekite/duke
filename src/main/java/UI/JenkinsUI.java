@@ -1,12 +1,12 @@
 package UI;
 
 public class JenkinsUI {
-    protected String chatBotName = "Jenkins";
-    public String getChatBotName(){
-        return this.chatBotName;
+    protected static String chatBotName = "Jenkins";
+    public static String getChatBotName(){
+        return chatBotName;
     }
 
-    public void printLogo(){
+    public static void printLogo(){
         System.out.println("       _            _    _           ");
         System.out.println("      | |          | |  (_)          ");
         System.out.println("      | | ___ _ __ | | ___ _ __  ___ ");
@@ -16,22 +16,22 @@ public class JenkinsUI {
     }
 
     //Extra 2 - just a drawing a line
-    public void drawLine() {
+    public static void drawLine() {
         System.out.println("____________________________________________________________");
     }
 
     //Level 0-1 Rename
     public void setChatBotName(String userInput){
-        this.chatBotName = userInput;
+        chatBotName = userInput;
     }
 
     //Level 0-2 Greet
-    public void chatBotSaysHello(){
+    public static void chatBotSaysHello(){
         System.out.println(getChatBotName() + ": Hello! you may call me " + getChatBotName() + ". I remember it, so you don't have to!");
         System.out.println("What can I do for you?");
     }
 
-    public void chatBotSaysBye(){
+    public static void chatBotSaysBye(){
         System.out.print(getChatBotName() + ": GoodBye, Stay safe. Hope to see you again soon!\n");
     }
 
