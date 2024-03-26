@@ -1,5 +1,6 @@
 import Storage.Storage;
 import UI.JenkinsUI;
+import Logic.*;
 
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -9,67 +10,49 @@ import java.util.regex.Pattern;
 public class Duke{
 
     private static Task task;
-    private JenkinsUI ui;
+    private final JenkinsUI ui;
+    private final Storage storage;
+    private final BotStatus botStatus;
+//    private final Command command;
+    private final Parser parser;
 
 
     public static String userInput = "";
-    public static Boolean chatbotIsOnline = false;
-    public static byte blankUserInputCount = 0;
+
+
 
 
     public Duke(){
+        ui = new JenkinsUI();
+        task = new Task();
+        botStatus = new BotStatus();
+//        command = new Command();
+        parser = new Parser();
 
-        chatbotIsOnline = false;
+        storage = new Storage();
+        storage.tryStorage();
+    }
 
-        JenkinsUI.printLogo();
+
+    public void run(){
+        ui.printLogo();
+        ui.chatBotSaysHello();
+
+        listenForInput(); //next time is command
+
+
     }
 
     public void changeChatBotName(){
-        System.out.println(JenkinsUI.getChatBotName() + ": Sure! Please key in my new name");
+        System.out.println(ui.getChatBotName() + ": Sure! Please key in my new name");
         Scanner sc = new Scanner(System.in);
         userInput = sc.nextLine();
 
         String name = userInput.trim();
         ui.setChatBotName(name);
 
-        System.out.println(JenkinsUI.getChatBotName() + ": Right away!");
+        System.out.println(ui.getChatBotName() + ": Right away!");
         sc.close();
-    }
-
-    public void powerOn(){
-        chatbotIsOnline = true;
-        task = new Task();
-
-        JenkinsUI.chatBotSaysHello();
-
-        listenForInput();
-    }
-
-    public void quitProgram(){
-        chatbotIsOnline = false;
-        JenkinsUI.chatBotSaysBye();
-    }
-
-    //Extra 1 - Impatience Meter
-    public void botGetsImpatient(int blankUserInput){
-        final int botMaxPatience = 2;
-        int botPatience = botMaxPatience - blankUserInput;
-
-        if (botPatience > 1) {
-            System.out.println("Sorry, I did not receive any commands");
-            System.out.println("I will leave if there's no one around. " + botPatience + " more chance");
-            listenForInput();
-        }
-
-        else if (botPatience == 1) {
-            System.out.println("Last Chance! Please issue a command or I will leave!");
-            listenForInput();
-        }
-
-        else {
-            System.out.println("Looks like no one's here. Good bye");
-            quitProgram();
-        }
     }
 
     //Level 1 Echo
@@ -77,28 +60,6 @@ public class Duke{
         System.out.println("added: " + s);
         listenForInput();
     }
-
-
-
-
-
-    public void help(){
-        System.out.println(JenkinsUI.getChatBotName() + ": Certainly! Here are all commands that I can understand:");
-        System.out.println("help or {.} - prints this help list to help recall");
-        System.out.println("bye - exits program --- tap {ENTER} 3 times)");
-        System.out.println("tap {ENTER} 3 times to exit program quickly");
-
-        JenkinsUI.drawLine();
-
-        System.out.println("[Task] - records Tasks");
-        System.out.println("[Task] by [timing] - records Deadlines");
-        System.out.println("[Task] from [time] to [time] - records Events");
-
-        System.out.println("mark OR unmark [Task number] - Marks/Unmarks Task number");
-        System.out.println("list - prints all recorded events");
-        System.out.println("Delete [Task number] - Delete Task");
-    }
-
 
 
     public void markUserIndex(String index){
@@ -171,7 +132,7 @@ public class Duke{
     }
 
     public void scanKeyword(String userInput)  {
-        blankUserInputCount = 0; // resets inpatient meter
+        botStatus.resetImpatience();
         boolean isMarkScenario = false, isDeadlineEvent = false; //Both flags must be false to confirm keyword [Task]
 
         String[] keyword = userInput.split(" ", 2);
@@ -207,12 +168,12 @@ public class Duke{
     }
 
     public void botDecidesBasedOn(String trimmedUserInput){
-        if (userInput.isBlank()) {
-            botGetsImpatient(blankUserInputCount++);
-        }
 
-        else if (userInput.equalsIgnoreCase("bye") || userInput.equalsIgnoreCase("quit")){
-            quitProgram();
+
+
+        if (userInput.equalsIgnoreCase("bye") || userInput.equalsIgnoreCase("quit")){
+            botStatus.quitProgram();
+            ui.chatBotSaysBye();
         }
 
         else if (userInput.equalsIgnoreCase("list")){
@@ -220,7 +181,7 @@ public class Duke{
         }
 
         else if (userInput.equalsIgnoreCase("help")){
-            help();
+            ui.getHelp();
         }
 
         else if (userInput.equalsIgnoreCase("change bot name")){
@@ -231,26 +192,56 @@ public class Duke{
             scanKeyword(trimmedUserInput);
         }
 
-        if (chatbotIsOnline){ //quitProgram() when input "bye" or empty input 3 times
+        if (botStatus.chatBotIsOnline()){ //quitProgram() when input "bye" or empty input 3 times
             listenForInput();
         }
     }
 
     public void listenForInput() {
-        JenkinsUI.drawLine();
+        ui.drawLine();
 
-        Scanner sc = new Scanner(System.in);
-        userInput = sc.nextLine();
-        String trimmedUserInput = userInput.trim();
-        botDecidesBasedOn(trimmedUserInput);
+        String s = ui.readCommand();
+
+        if (parser.isBlank(s)) {
+            botStatus.botBecomesImpatient();
+            ui.patienceFeedback(botStatus.botPatienceMeter());
+        }
+
+        else if (s.equalsIgnoreCase("bye") || s.equalsIgnoreCase("quit")){
+            botStatus.quitProgram();
+        }
+
+        else if (s.equalsIgnoreCase("list")){
+            task.printWordDiary();
+        }
+
+        else if (s.equalsIgnoreCase("help") || s.equalsIgnoreCase("faq")){
+            ui.getHelp();
+        }
+
+        else if (s.equalsIgnoreCase("change bot name")){
+            ui.changeChatBotName();
+        }
+
+
+//        command.botDecidesBasedOn(trimmedUserInput);
+
+//        botDecidesBasedOn(trimmedUserInput);
+
+
+
+        if (botStatus.chatBotIsOnline() && botStatus.isBotPatient()){
+
+            listenForInput();
+        }
+
+        else{
+            botStatus.quitProgram();
+            ui.chatBotSaysBye();
+        }
     }
 
     public static void main(String[] args) {
-        Storage s = new Storage();
-        s.tryStorage();
-
-        JenkinsUI.chatBotSaysHello();
-        Duke Jenkins = new Duke();
-        Jenkins.powerOn();
+        new Duke().run();
     }
 }
