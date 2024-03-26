@@ -1,6 +1,8 @@
 import Storage.Storage;
+import Task.*;
 import UI.JenkinsUI;
 import Logic.*;
+import Exception.DukeException;
 
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -66,12 +68,10 @@ public class Duke{
         task.markAsDone(index);
     }
 
-    public void keywordDelete(String[] keyword){
+    public void keywordDelete(String[] keyword) throws DukeException {
         try {
             int taskNumber = Integer.parseInt(keyword[1]); //problems comes from converting string to number
             task.deleteTask(taskNumber);
-        } catch (DukeException e) {
-            throw new RuntimeException(e);
         } catch (NumberFormatException e) {
             DukeException.getError(DukeException.invalidTaskNumber());
         } catch (IllegalArgumentException e) {
@@ -90,13 +90,13 @@ public class Duke{
 
             Deadline d = new Deadline(eventDescription, deadline);
             task.createTask(d);
-            System.out.print("Deadline ");
+            System.out.print("Task.Deadline ");
             echoUserInputAdded(userInput);
         }
 
         else {
             System.out.println("I noticed your intent to create a deadline with \"by\"");
-            System.out.println("Please input as follows: [Task] by [timing]");
+            System.out.println("Please input as follows: [Task.Task] by [timing]");
 
         }
     }
@@ -114,26 +114,26 @@ public class Duke{
             Event event = new Event(eventDescription, start, end);
             task.createTask(event);
 
-            System.out.print("Event ");
+            System.out.print("Task.Task.Event ");
             echoUserInputAdded(userInput);
         }
 
         else {
             System.out.println("Seems like you want to create an event with \"from\" & \"to\"");
-            System.out.println("Please input as follows: [Task] from [time] to [time]");
+            System.out.println("Please input as follows: [Task.Task] from [time] to [time]");
         }
     }
 
     public void keywordTask(){
         ToDo todo = new ToDo(userInput);
         task.createTask(todo);
-        System.out.print("Task to do ");
+        System.out.print("Task.Task to do ");
         echoUserInputAdded(userInput);
     }
 
-    public void scanKeyword(String userInput)  {
+    public void scanKeyword(String userInput) throws DukeException {
         botStatus.resetImpatience();
-        boolean isMarkScenario = false, isDeadlineEvent = false; //Both flags must be false to confirm keyword [Task]
+        boolean isMarkScenario = false, isDeadlineEvent = false; //Both flags must be false to confirm keyword [Task.Task]
 
         String[] keyword = userInput.split(" ", 2);
 
@@ -161,13 +161,13 @@ public class Duke{
             isDeadlineEvent = true; //corner case from from to to
         }
 
-        // Level 4-1 Task To do
+        // Level 4-1 Task.Task To do
         if (!isMarkScenario && !isDeadlineEvent){
             keywordTask();
         }
     }
 
-    public void botDecidesBasedOn(String trimmedUserInput){
+    public void botDecidesBasedOn(String trimmedUserInput) throws DukeException {
 
 
 

@@ -1,3 +1,6 @@
+package Task;
+
+import Exception.DukeException;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,7 +32,7 @@ public class Task {
         taskSize++;
     }
 
-    public void deleteTask(int taskNo) throws DukeException{
+    public void deleteTask(int taskNo) throws DukeException {
 
         if (isValidTaskNumber(taskNo)) {
             System.out.println("I've deleted " + tasksStorage.get(taskNo - 1));

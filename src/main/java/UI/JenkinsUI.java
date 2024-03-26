@@ -51,13 +51,13 @@ public class JenkinsUI {
 
         drawLine();
 
-        System.out.println("[Task] - records Tasks");
-        System.out.println("[Task] by [timing] - records Deadlines");
-        System.out.println("[Task] from [time] to [time] - records Events");
+        System.out.println("[Task.Task] - records Tasks");
+        System.out.println("[Task.Task] by [timing] - records Deadlines");
+        System.out.println("[Task.Task] from [time] to [time] - records Events");
 
-        System.out.println("mark OR unmark [Task number] - Marks/Unmarks Task number");
+        System.out.println("mark OR unmark [Task.Task number] - Marks/Unmarks Task.Task number");
         System.out.println("list - prints all recorded events");
-        System.out.println("Delete [Task number] - Delete Task");
+        System.out.println("Delete [Task.Task number] - Delete Task.Task");
     }
 
     /**
