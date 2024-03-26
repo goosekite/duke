@@ -12,7 +12,7 @@ public class DukeException extends Exception{
         System.out.println(exception.getErrorMessage());
     }
     public static DukeException invalidTaskNumber() {
-        return new DukeException("Task number is wrong");
+        return new DukeException("Task.Task number is wrong");
     }
 
     public static DukeException expectIntegerButInputIsString() {

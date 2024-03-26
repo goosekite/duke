@@ -1,4 +1,6 @@
-public class Deadline extends Task{
+import Task.Task;
+
+public class Deadline extends Task {
     protected String by;
 
     public Deadline() {
