@@ -1,12 +1,11 @@
 import Storage.Storage;
 import Task.*;
 import UI.JenkinsUI;
-import Logic.*;
+import Logic.BotStatus;
 import Exception.DukeException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 public class Duke{
 
@@ -24,18 +23,14 @@ public class Duke{
         storage.tryStorage();
     }
 
-    public boolean botIsAlive(){
-        return (botStatus.chatBotIsOnline() && botStatus.isBotPatient());
-    }
-
     /**
-     * Bot listens for input until it loses patience user shuts it off
+     * Lifeblood of the system are: run() and botIsAlive()
      */
-    public void run() throws DukeException {
+    public void run() {
         ui.chatBotSaysHello();
 
         do{
-            listenForInput();
+            botListensForInput();
         }
         while (botIsAlive());
 
@@ -43,21 +38,20 @@ public class Duke{
         ui.chatBotSaysBye();
     }
 
+    public boolean botIsAlive(){
+        return (botStatus.chatBotIsOnline() && botStatus.isBotPatient());
+    }
+
+    /**
+     * These 5 methods are logic for scanAdvanceKeywords()
+     */
     public void markUserIndex(String index){
         task.markAsDone(index);
     }
 
-    public void keywordDelete(String[] keyword) throws DukeException {
-        try {
+    public void keywordDelete(String[] keyword) {
             int taskNumber = Integer.parseInt(keyword[1]); //problems comes from converting string to number
             task.deleteTask(taskNumber);
-        } catch (NumberFormatException e) {
-            DukeException.getError(DukeException.invalidTaskNumber());
-        } catch (IllegalArgumentException e) {
-            DukeException.getError(DukeException.expectIntegerButInputIsString());
-        } catch (ArrayIndexOutOfBoundsException e){
-            DukeException.getError(DukeException.arrayOutOfBounds());
-        }
     }
 
     public void keywordBy(String userInput){
@@ -109,12 +103,11 @@ public class Duke{
         ui.echoUserInputAdded(userInput);
     }
 
-
-
     /**
-     * Respond to inputs which are not related to task, events nor deadline
+     * Inputs which are not related to mark, delete, deadlines, events nor tasks
      */
     public boolean isGeneralKeyword(String trimmedUserInput){
+
         if (trimmedUserInput.isBlank()) {
             botStatus.botBecomesImpatient();
             ui.patienceFeedback(botStatus.botPatienceMeter());
@@ -128,28 +121,31 @@ public class Duke{
 
         else if (trimmedUserInput.equalsIgnoreCase("list")){
             task.printWordDiary();
+            botStatus.resetImpatience();
             return true;
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("help") || trimmedUserInput.equalsIgnoreCase("faq")){
             ui.getHelp();
+            botStatus.resetImpatience();
             return true;
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("change bot name")){
             ui.changeChatBotName();
+            botStatus.resetImpatience();
             return true;
         }
 
         return false;
     }
 
-    /** Response to [mark] [delete], Deadlines [by ], Events [from].. [to] and Tasks
-     * @throws DukeException array out of bounds exception is caused by lone input "mark", "unmark" and "delete"
+    /** Response to [mark] [delete], Deadlines [by ], Events [from]... [to] and Tasks
+     * DukeException prevents array out of bounds exception caused by input "mark", "unmark" and "delete"
      */
-    public void scanAdvanceKeywords(String userInput) throws DukeException {
+    public void scanAdvanceKeywords(String userInput)  {
         botStatus.resetImpatience();
-        boolean isMarkScenario = false, isDeadlineEvent = false, loopHasNoError = true; //Both flags must be false to confirm keyword [Task]
+        boolean isDeadlineEvent = false, isMarkOrDelete = false;
 
         String[] keyword = userInput.split(" ", 2);
 
@@ -159,24 +155,30 @@ public class Duke{
             case "unmark":
                 try{
                     markUserIndex(keyword[1]);
-                    isMarkScenario = true;
                 }
                 catch (ArrayIndexOutOfBoundsException e){
                     DukeException.getError(DukeException.arrayOutOfBounds());
-                    loopHasNoError = false;
                     ui.getErrorHelpMark();
+                }
+                finally {
+                    isMarkOrDelete = true;
                 }
                 break;
 
             case "delete":
                 try{
                     keywordDelete(keyword);
-                    isMarkScenario = true;
                 }
                 catch (ArrayIndexOutOfBoundsException e){
                     DukeException.getError(DukeException.arrayOutOfBounds());
-                    loopHasNoError = false;
                     ui.getErrorHelpDelete();
+                }
+                catch (NumberFormatException e){
+                    DukeException.getError(DukeException.expectIntegerButInputIsString());
+                    ui.getErrorHelpDelete();
+                }
+                finally {
+                    isMarkOrDelete = true;
                 }
         }
 
@@ -192,13 +194,20 @@ public class Duke{
             isDeadlineEvent = true; //corner case from from to to
         }
 
-        // Level 4-1 Task To do
-        if (!isMarkScenario && !isDeadlineEvent && loopHasNoError){
+        /*Level 4-1 Task To do
+          isDeadlineEvent prevents bot from saving userInput 2 times: 1st as Deadline/Event. 2nd as Task
+          isMarkOrDelete prevents user from saving keyword "mark" "delete" as Task
+         */
+        if (!isMarkOrDelete && !isDeadlineEvent){
             keywordTask(userInput);
         }
     }
 
-    public void listenForInput() throws DukeException {
+    /** Purpose of the system is to listen to user
+     * General: Quality of life functions
+     * Advance: Bot functions as intended
+     */
+    public void botListensForInput() {
         ui.drawLine();
 
         String userInput = ui.cleanUserCommand();
@@ -206,11 +215,9 @@ public class Duke{
         if (!isGeneralKeyword(userInput)){
             scanAdvanceKeywords(userInput);
         }
-
-
     }
 
-    public static void main(String[] args) throws DukeException {
+    public static void main(String[] args) {
         new Duke().run();
     }
 }

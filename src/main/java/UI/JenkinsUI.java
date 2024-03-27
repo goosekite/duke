@@ -62,7 +62,7 @@ public class JenkinsUI {
 
         System.out.println("mark [Task number] - Marks/Unmarks Task number");
         System.out.println("list - prints all recorded events");
-        System.out.println("Delete [Task number] - Delete Task.Task");
+        System.out.println("delete [Task number] - Delete Task.Task");
     }
 
     public void getErrorHelpMark(){
@@ -70,7 +70,7 @@ public class JenkinsUI {
     }
 
     public void getErrorHelpDelete(){
-        System.out.println("Delete [Task number] - Delete Task.Task");
+        System.out.println("delete [Task number]");
     }
 
     public void getErrorHelpBy(){
@@ -84,9 +84,8 @@ public class JenkinsUI {
     }
 
     /**
-     * Test if bot should continue to listen for userInput
-     * @param botPatience bot patience meter
-     * feedback in text accordingly
+     * @param botPatience determines if bot should continue to listen for userInput or shut down
+     * Provides warning accordingly
      */
     public void patienceFeedback(int botPatience){
         if (botPatience > 1) {

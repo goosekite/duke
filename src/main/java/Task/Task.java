@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Parent Class for Deadline, Event and To do
+ */
 public class Task {
     private ArrayList<Task> tasksStorage;
 
@@ -32,7 +35,7 @@ public class Task {
         taskSize++;
     }
 
-    public void deleteTask(int taskNo) throws DukeException {
+    public void deleteTask(int taskNo) {
 
         if (isValidTaskNumber(taskNo)) {
             System.out.println("I've deleted " + tasksStorage.get(taskNo - 1));
@@ -132,11 +135,11 @@ public class Task {
             }
 
             else {
-                System.out.println("We don't have that task yet!");
+                System.out.println("Sorry, we don't have that task yet!");
             }
         }
 
-        else {
+        else { //expectIntegerButInputIsString mark v
             System.out.println("I found nothing to mark :(");
         }
 
