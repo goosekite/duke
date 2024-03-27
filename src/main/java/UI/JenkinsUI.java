@@ -9,10 +9,14 @@ public class JenkinsUI {
         return chatBotName;
     }
 
-    public String readCommand(){
+    public String cleanUserCommand(){
         Scanner sc = new Scanner(System.in);
         userInput = sc.nextLine();
         return userInput.trim();
+    }
+
+    public void echoUserInputAdded(String s){
+        System.out.println("added: " + s);
     }
 
     public void printLogo(){
@@ -35,6 +39,7 @@ public class JenkinsUI {
     }
 
     public void chatBotSaysHello(){
+        printLogo();
         System.out.println(getChatBotName() + ": Hello! you may call me " + getChatBotName() + ". I remember it, so you don't have to!");
         System.out.println("What can I do for you?");
     }
@@ -51,13 +56,31 @@ public class JenkinsUI {
 
         drawLine();
 
-        System.out.println("[Task.Task] - records Tasks");
-        System.out.println("[Task.Task] by [timing] - records Deadlines");
-        System.out.println("[Task.Task] from [time] to [time] - records Events");
+        System.out.println("[Task] - records Tasks");
+        System.out.println("[Task] by [timing] - records Deadlines");
+        System.out.println("[Task] from [time] to [time] - records Events");
 
-        System.out.println("mark OR unmark [Task.Task number] - Marks/Unmarks Task.Task number");
+        System.out.println("mark [Task number] - Marks/Unmarks Task number");
         System.out.println("list - prints all recorded events");
-        System.out.println("Delete [Task.Task number] - Delete Task.Task");
+        System.out.println("Delete [Task number] - Delete Task.Task");
+    }
+
+    public void getErrorHelpMark(){
+        System.out.println("mark [Task number]");
+    }
+
+    public void getErrorHelpDelete(){
+        System.out.println("Delete [Task number] - Delete Task.Task");
+    }
+
+    public void getErrorHelpBy(){
+        System.out.println("I noticed your intent to create a deadline with \"by\"");
+        System.out.println("Please input as follows: [Task] by [timing]");
+    }
+
+    public void getErrorHelpFromTo(){
+        System.out.println("Seems like you want to create an event with \"from\" & \"to\"");
+        System.out.println("Please input as follows: [Task] from [time] to [time]");
     }
 
     /**

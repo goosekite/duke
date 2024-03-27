@@ -4,7 +4,6 @@ import UI.JenkinsUI;
 import Logic.*;
 import Exception.DukeException;
 
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,54 +14,34 @@ public class Duke{
     private final JenkinsUI ui;
     private final Storage storage;
     private final BotStatus botStatus;
-//    private final Command command;
-    private final Parser parser;
-
-
-    public static String userInput = "";
-
-
-
 
     public Duke(){
         ui = new JenkinsUI();
         task = new Task();
         botStatus = new BotStatus();
-//        command = new Command();
-        parser = new Parser();
 
         storage = new Storage();
         storage.tryStorage();
     }
 
+    public boolean botIsAlive(){
+        return (botStatus.chatBotIsOnline() && botStatus.isBotPatient());
+    }
 
-    public void run(){
-        ui.printLogo();
+    /**
+     * Bot listens for input until it loses patience user shuts it off
+     */
+    public void run() throws DukeException {
         ui.chatBotSaysHello();
 
-        listenForInput(); //next time is command
+        do{
+            listenForInput();
+        }
+        while (botIsAlive());
 
-
+        botStatus.quitProgram();
+        ui.chatBotSaysBye();
     }
-
-    public void changeChatBotName(){
-        System.out.println(ui.getChatBotName() + ": Sure! Please key in my new name");
-        Scanner sc = new Scanner(System.in);
-        userInput = sc.nextLine();
-
-        String name = userInput.trim();
-        ui.setChatBotName(name);
-
-        System.out.println(ui.getChatBotName() + ": Right away!");
-        sc.close();
-    }
-
-    //Level 1 Echo
-    public void echoUserInputAdded(String s){
-        System.out.println("added: " + s);
-        listenForInput();
-    }
-
 
     public void markUserIndex(String index){
         task.markAsDone(index);
@@ -76,10 +55,12 @@ public class Duke{
             DukeException.getError(DukeException.invalidTaskNumber());
         } catch (IllegalArgumentException e) {
             DukeException.getError(DukeException.expectIntegerButInputIsString());
+        } catch (ArrayIndexOutOfBoundsException e){
+            DukeException.getError(DukeException.arrayOutOfBounds());
         }
     }
 
-    public void keywordBy(){
+    public void keywordBy(String userInput){
         Pattern pattern = Pattern.compile("(.+) by (.+)");
         Matcher matcher = pattern.matcher(userInput);
 
@@ -90,18 +71,16 @@ public class Duke{
 
             Deadline d = new Deadline(eventDescription, deadline);
             task.createTask(d);
-            System.out.print("Task.Deadline ");
-            echoUserInputAdded(userInput);
+            System.out.print("Deadline ");
+            ui.echoUserInputAdded(userInput);
         }
 
         else {
-            System.out.println("I noticed your intent to create a deadline with \"by\"");
-            System.out.println("Please input as follows: [Task.Task] by [timing]");
-
+            ui.getErrorHelpBy();
         }
     }
 
-    public void keywordFromTo(){
+    public void keywordFromTo(String userInput){
         Pattern pattern = Pattern.compile("(.+) from (.+) to (.+)");
         Matcher matcher = pattern.matcher(userInput);
 
@@ -114,26 +93,63 @@ public class Duke{
             Event event = new Event(eventDescription, start, end);
             task.createTask(event);
 
-            System.out.print("Task.Task.Event ");
-            echoUserInputAdded(userInput);
+            System.out.print("Event ");
+            ui.echoUserInputAdded(userInput);
         }
 
         else {
-            System.out.println("Seems like you want to create an event with \"from\" & \"to\"");
-            System.out.println("Please input as follows: [Task.Task] from [time] to [time]");
+            ui.getErrorHelpFromTo();
         }
     }
 
-    public void keywordTask(){
+    public void keywordTask(String userInput){
         ToDo todo = new ToDo(userInput);
         task.createTask(todo);
-        System.out.print("Task.Task to do ");
-        echoUserInputAdded(userInput);
+        System.out.print("Task to do ");
+        ui.echoUserInputAdded(userInput);
     }
 
-    public void scanKeyword(String userInput) throws DukeException {
+
+
+    /**
+     * Respond to inputs which are not related to task, events nor deadline
+     */
+    public boolean isGeneralKeyword(String trimmedUserInput){
+        if (trimmedUserInput.isBlank()) {
+            botStatus.botBecomesImpatient();
+            ui.patienceFeedback(botStatus.botPatienceMeter());
+            return true;
+        }
+
+        else if (trimmedUserInput.equalsIgnoreCase("bye") || trimmedUserInput.equalsIgnoreCase("quit")){
+            botStatus.quitProgram();
+            return true;
+        }
+
+        else if (trimmedUserInput.equalsIgnoreCase("list")){
+            task.printWordDiary();
+            return true;
+        }
+
+        else if (trimmedUserInput.equalsIgnoreCase("help") || trimmedUserInput.equalsIgnoreCase("faq")){
+            ui.getHelp();
+            return true;
+        }
+
+        else if (trimmedUserInput.equalsIgnoreCase("change bot name")){
+            ui.changeChatBotName();
+            return true;
+        }
+
+        return false;
+    }
+
+    /** Response to [mark] [delete], Deadlines [by ], Events [from].. [to] and Tasks
+     * @throws DukeException array out of bounds exception is caused by lone input "mark", "unmark" and "delete"
+     */
+    public void scanAdvanceKeywords(String userInput) throws DukeException {
         botStatus.resetImpatience();
-        boolean isMarkScenario = false, isDeadlineEvent = false; //Both flags must be false to confirm keyword [Task.Task]
+        boolean isMarkScenario = false, isDeadlineEvent = false, loopHasNoError = true; //Both flags must be false to confirm keyword [Task]
 
         String[] keyword = userInput.split(" ", 2);
 
@@ -141,107 +157,60 @@ public class Duke{
         switch (keyword[0]){
             case "mark":
             case "unmark":
-                markUserIndex(keyword[1]);
-                isMarkScenario = true;
+                try{
+                    markUserIndex(keyword[1]);
+                    isMarkScenario = true;
+                }
+                catch (ArrayIndexOutOfBoundsException e){
+                    DukeException.getError(DukeException.arrayOutOfBounds());
+                    loopHasNoError = false;
+                    ui.getErrorHelpMark();
+                }
                 break;
+
             case "delete":
-                keywordDelete(keyword);
-                isMarkScenario = true;
+                try{
+                    keywordDelete(keyword);
+                    isMarkScenario = true;
+                }
+                catch (ArrayIndexOutOfBoundsException e){
+                    DukeException.getError(DukeException.arrayOutOfBounds());
+                    loopHasNoError = false;
+                    ui.getErrorHelpDelete();
+                }
         }
 
         // Level 4-2 Deadlines
         if (userInput.contains("by ")){
-            keywordBy();
+            keywordBy(userInput);
             isDeadlineEvent = true;
         }
 
         // Level 4-3 Events
         if (userInput.contains("from ") && userInput.contains("to ")){
-            keywordFromTo();
+            keywordFromTo(userInput);
             isDeadlineEvent = true; //corner case from from to to
         }
 
-        // Level 4-1 Task.Task To do
-        if (!isMarkScenario && !isDeadlineEvent){
-            keywordTask();
+        // Level 4-1 Task To do
+        if (!isMarkScenario && !isDeadlineEvent && loopHasNoError){
+            keywordTask(userInput);
         }
     }
 
-    public void botDecidesBasedOn(String trimmedUserInput) throws DukeException {
-
-
-
-        if (userInput.equalsIgnoreCase("bye") || userInput.equalsIgnoreCase("quit")){
-            botStatus.quitProgram();
-            ui.chatBotSaysBye();
-        }
-
-        else if (userInput.equalsIgnoreCase("list")){
-            task.printWordDiary();
-        }
-
-        else if (userInput.equalsIgnoreCase("help")){
-            ui.getHelp();
-        }
-
-        else if (userInput.equalsIgnoreCase("change bot name")){
-            changeChatBotName();
-        }
-
-        else{
-            scanKeyword(trimmedUserInput);
-        }
-
-        if (botStatus.chatBotIsOnline()){ //quitProgram() when input "bye" or empty input 3 times
-            listenForInput();
-        }
-    }
-
-    public void listenForInput() {
+    public void listenForInput() throws DukeException {
         ui.drawLine();
 
-        String s = ui.readCommand();
-
-        if (parser.isBlank(s)) {
-            botStatus.botBecomesImpatient();
-            ui.patienceFeedback(botStatus.botPatienceMeter());
-        }
-
-        else if (s.equalsIgnoreCase("bye") || s.equalsIgnoreCase("quit")){
-            botStatus.quitProgram();
-        }
-
-        else if (s.equalsIgnoreCase("list")){
-            task.printWordDiary();
-        }
-
-        else if (s.equalsIgnoreCase("help") || s.equalsIgnoreCase("faq")){
-            ui.getHelp();
-        }
-
-        else if (s.equalsIgnoreCase("change bot name")){
-            ui.changeChatBotName();
+        String userInput = ui.cleanUserCommand();
+        
+        if (!isGeneralKeyword(userInput)){
+            scanAdvanceKeywords(userInput);
         }
 
 
-//        command.botDecidesBasedOn(trimmedUserInput);
-
-//        botDecidesBasedOn(trimmedUserInput);
-
-
-
-        if (botStatus.chatBotIsOnline() && botStatus.isBotPatient()){
-
-            listenForInput();
-        }
-
-        else{
-            botStatus.quitProgram();
-            ui.chatBotSaysBye();
-        }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws DukeException {
         new Duke().run();
     }
 }

@@ -1,22 +1,20 @@
 package Logic;
 
+/**
+ * Determines if bot is patient or online
+ * Bot will be offline if it loses all patience or user switch it off manually
+ */
 public class BotStatus {
-
-    protected Boolean isOnline = true;
-    final int botMaxPatience = 3;
+    final int BOT_MAX_PATIENCE = 3;
     public byte blankUserInputCount = 0;
+    protected Boolean isOnline = true;
 
-    /**
-     * For UI action
-     * @return 0 to quit, 1 for last chance, 2 for warning
-     */
     public int botPatienceMeter(){
-        return botMaxPatience - blankUserInputCount;
+        return BOT_MAX_PATIENCE - blankUserInputCount;
     }
 
     public boolean isBotPatient(){
-        return (botMaxPatience - blankUserInputCount) > 0;
-
+        return (BOT_MAX_PATIENCE - blankUserInputCount) > 0;
     }
 
     public void botBecomesImpatient(){
@@ -34,5 +32,7 @@ public class BotStatus {
     public Boolean chatBotIsOnline(){
         return isOnline;
     }
+
+
 
 }

@@ -47,11 +47,9 @@ public class Task {
     }
 
     public static boolean isValidTaskNumber(int taskNo) {
-        //System.out.println("yes is valid task no");
         return taskNo <= taskSize && taskNo > 0;
     }
 
-    //Methods to filter Information
     public String getStatusIcon() {
         return (getIsDone() ? "X" : " "); // mark done task with X
     }
@@ -72,13 +70,24 @@ public class Task {
             System.out.println("Marvelous, Only 1 outstanding task left to complete!");
         }
 
-        else {
+
+         else if (getTaskSize() < 5){
             System.out.println("Right away! I found " + getTaskSize() + " tasks!");
             for (int i = 0; i < this.tasksStorage.size(); i++) {
                 Task t = this.tasksStorage.get(i);
                 System.out.print(i + 1 + " " + t.toString() + "\n");
             }
         }
+
+         else{
+            System.out.println("Oh my! you have " + getTaskSize() + " tasks!");
+            for (int i = 0; i < this.tasksStorage.size(); i++) {
+                Task t = this.tasksStorage.get(i);
+                System.out.print(i + 1 + " " + t.toString() + "\n");
+            }
+        }
+
+
     }
 
     //Retrieve String description
@@ -120,11 +129,14 @@ public class Task {
                 System.out.print("[" + task.getStatusIcon() + "] ");
                 System.out.println(task.getTaskDescription());
 
-            } else {
-                
+            }
+
+            else {
                 System.out.println("We don't have that task yet!");
             }
-        } else {
+        }
+
+        else {
             System.out.println("I found nothing to mark :(");
         }
 
