@@ -24,6 +24,10 @@ public class Task {
         return "[" + getStatusIcon() + "] " + this.description;
     }
 
+    public String convertToCommand(){
+        return "";
+    }
+
     public Task(String dukeUserInput) {
         this.description = dukeUserInput;
         this.isDone = false;
@@ -62,23 +66,23 @@ public class Task {
 
         //1 way to improve is having an enum to store high medium low amount of task.
         if (getTaskSize() == 1){
-            System.out.print(this.tasksStorage.get(0).toString() + "\n");
+            System.out.print(tasksStorage.get(0).toString() + "\n");
             System.out.println("Marvelous, Only 1 outstanding task left to complete!");
         }
 
-
          else if (getTaskSize() < 5){
             System.out.println("Right away! I found " + getTaskSize() + " tasks!");
-            for (int i = 0; i < this.tasksStorage.size(); i++) {
-                Task t = this.tasksStorage.get(i);
+            for (int i = 0; i < tasksStorage.size(); i++) {
+                Task t = tasksStorage.get(i);
                 System.out.print(i + 1 + " " + t.toString() + "\n");
+//                System.out.print(t.convertToCommand() + "\n");
             }
         }
 
          else{
             System.out.println("Oh my! you have " + getTaskSize() + " tasks!");
-            for (int i = 0; i < this.tasksStorage.size(); i++) {
-                Task t = this.tasksStorage.get(i);
+            for (int i = 0; i < tasksStorage.size(); i++) {
+                Task t = tasksStorage.get(i);
                 System.out.print(i + 1 + " " + t.toString() + "\n");
             }
         }
@@ -122,7 +126,7 @@ public class Task {
                 Task task = tasksStorage.get(index);
                 task.isDone = !task.isDone;
 
-                System.out.println("TaskList " + counter + " marked as " + (task.isDone ? "done!" : "undone!"));
+                System.out.println("Task " + counter + " marked as " + (task.isDone ? "done!" : "undone!"));
 
                 System.out.print(counter + ".");
                 System.out.print("[" + task.getStatusIcon() + "] ");

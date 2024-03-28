@@ -4,9 +4,6 @@ import java.util.Scanner;
 
 public class Parser {
 
-
-
-
     public String tidyUserInput(){
 
         Scanner sc = new Scanner(System.in);
