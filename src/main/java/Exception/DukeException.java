@@ -1,28 +1,36 @@
 package Exception;
 
 /**
- * A list of exceptions for Duke.
- * Errors tend to happen when dealing with accessing index in array
+ * Explains why there is error to user
  */
 public class DukeException extends Exception{
     public DukeException(String message) {
         super(message);
     }
 
-    public String getErrorMessage() {
-        return ("I'm so sorry, " + getMessage());
-    }
-
+    /**
+     *  Step 1: Find which error was triggered
+     */
     public static void getError(DukeException exception) {
         System.out.println(exception.getErrorMessage());
     }
-    public static DukeException invalidTaskNumber() {
-        return new DukeException("Task number is wrong");
+
+    /**
+     * Step 2: Apologise for mishap
+     */
+    public String getErrorMessage() {
+        return ("My apologies. " + getMessage());
     }
+
+    /**
+     *  Step 3: Inform user why error happened
+     */
     public static DukeException expectIntegerButInputIsString() {
-        return new DukeException("Please put a number instead. For example:");
+        return new DukeException("Please enter a number instead of a text.");
     }
-    public static DukeException arrayOutOfBounds(){ return new DukeException("Please put a number after your keyword. For example:");}
+    public static DukeException arrayOutOfBounds(){
+        return new DukeException("No such task number exists\nPlease enter a number after your keyword");
+    }
 }
 
 

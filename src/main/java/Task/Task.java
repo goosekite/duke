@@ -35,29 +35,22 @@ public class Task {
         taskSize++;
     }
 
+
     public void deleteTask(int taskNo) {
 
-        if (isValidTaskNumber(taskNo)) {
-            System.out.println("I've deleted " + tasksStorage.get(taskNo - 1));
-            tasksStorage.remove(taskNo - 1);
-            taskSize--;
-        }
-
-        else{
-            System.out.println("Sorry, There's no such task number");
-        }
+        //System.out.println("I've deleted " + tasksStorage.get(taskNo - 1));
+        tasksStorage.remove(taskNo - 1);
+        taskSize--;
 
     }
 
-    public static boolean isValidTaskNumber(int taskNo) {
-        return taskNo <= taskSize && taskNo > 0;
-    }
+
 
     public String getStatusIcon() {
         return (getIsDone() ? "X" : " "); // mark done task with X
     }
 
-    public static int getTaskSize(){
+    public int getTaskSize(){
         return taskSize;
     }
 

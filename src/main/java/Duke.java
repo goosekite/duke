@@ -49,9 +49,35 @@ public class Duke{
         task.markAsDone(index);
     }
 
+    public boolean taskNumberIsValid(int taskNo) {
+        return taskNo <= task.getTaskSize() && taskNo > 0;
+    }
+
+    /** 3 points of failure. 2 wrong inputs by user. Last: No such task exists
+     * arrayOutOfBounds "delete"
+     * expectIntegerButInputIsString "delete v"
+     * User inputs command correctly but no such task exists
+     */
     public void keywordDelete(String[] keyword) {
-            int taskNumber = Integer.parseInt(keyword[1]); //problems comes from converting string to number
-            task.deleteTask(taskNumber);
+        try{
+            int taskNumber = Integer.parseInt(keyword[1]);
+            if (taskNumberIsValid(taskNumber)){
+                task.deleteTask(taskNumber);
+                ui.deleteTaskSuccess();
+            }
+        }
+        catch (ArrayIndexOutOfBoundsException e){
+            DukeException.getError(DukeException.arrayOutOfBounds());
+            ui.getErrorHelpDelete();
+        }
+        catch (NumberFormatException e){
+            DukeException.getError(DukeException.expectIntegerButInputIsString());
+            ui.getErrorHelpDelete();
+        }
+        finally {
+            ui.deleteTaskFailed();
+        }
+
     }
 
     public void keywordBy(String userInput){
@@ -166,20 +192,8 @@ public class Duke{
                 break;
 
             case "delete":
-                try{
                     keywordDelete(keyword);
-                }
-                catch (ArrayIndexOutOfBoundsException e){
-                    DukeException.getError(DukeException.arrayOutOfBounds());
-                    ui.getErrorHelpDelete();
-                }
-                catch (NumberFormatException e){
-                    DukeException.getError(DukeException.expectIntegerButInputIsString());
-                    ui.getErrorHelpDelete();
-                }
-                finally {
                     isMarkOrDelete = true;
-                }
         }
 
         // Level 4-2 Deadlines

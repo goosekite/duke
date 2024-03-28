@@ -15,9 +15,8 @@ public class JenkinsUI {
         return userInput.trim();
     }
 
-    public void echoUserInputAdded(String s){
-        System.out.println("added: " + s);
-    }
+
+
 
     public void printLogo(){
         System.out.println("       _            _    _           ");
@@ -70,7 +69,7 @@ public class JenkinsUI {
     }
 
     public void getErrorHelpDelete(){
-        System.out.println("delete [Task number]");
+        System.out.println("For example: delete 1");
     }
 
     public void getErrorHelpBy(){
@@ -114,9 +113,17 @@ public class JenkinsUI {
     }
 
 
-    public void echoUserInput(String s){
+    public void echoUserInputAdded(String s){
         System.out.println("added: " + s);
     }
 
+
+    public void deleteTaskSuccess(){
+        System.out.println("Certainly, I've deleted ");
+    }
+
+    public void deleteTaskFailed(){
+        System.out.println("Sorry, We have no such task in our records");
+    }
 
 }
