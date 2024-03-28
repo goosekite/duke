@@ -1,5 +1,6 @@
+import Logic.Parser;
 import Storage.Storage;
-import Task.*;
+import TaskList.*;
 import UI.JenkinsUI;
 import Logic.BotStatus;
 import Exception.DukeException;
@@ -11,12 +12,15 @@ public class Duke{
 
     private static Task task;
     private final JenkinsUI ui;
+    private final Parser parser;
     private final Storage storage;
     private final BotStatus botStatus;
 
+
     public Duke(){
-        ui = new JenkinsUI();
         task = new Task();
+        ui = new JenkinsUI();
+        parser = new Parser();
         botStatus = new BotStatus();
 
         storage = new Storage();
@@ -53,29 +57,34 @@ public class Duke{
         return taskNo <= task.getTaskSize() && taskNo > 0;
     }
 
-    /** 3 points of failure. 2 wrong inputs by user. Last: No such task exists
-     * arrayOutOfBounds "delete"
-     * expectIntegerButInputIsString "delete v"
-     * User inputs command correctly but no such task exists
+    /** Delete has 3 points of failure:
+     * "delete" - User did not follow instructions
+     * "delete v" - User did not follow instructions
+     * "delete 1" - Correct input, but no such Task Index exists
      */
     public void keywordDelete(String[] keyword) {
+        int validTaskNumber = -1;
+
         try{
             int taskNumber = Integer.parseInt(keyword[1]);
-            if (taskNumberIsValid(taskNumber)){
-                task.deleteTask(taskNumber);
-                ui.deleteTaskSuccess();
+            if (taskNumberIsValid(taskNumber)) {
+                validTaskNumber = taskNumber;
             }
-        }
-        catch (ArrayIndexOutOfBoundsException e){
-            DukeException.getError(DukeException.arrayOutOfBounds());
-            ui.getErrorHelpDelete();
+
+            String s = task.getTaskBeforeDelete(validTaskNumber); //for undo
+
+            task.deleteTask(validTaskNumber);
+            ui.taskDeletedSuccessfully(s);
         }
         catch (NumberFormatException e){
-            DukeException.getError(DukeException.expectIntegerButInputIsString());
-            ui.getErrorHelpDelete();
+            DukeException.getError(DukeException.expectIntegerButInputIsString("delete"));
         }
-        finally {
-            ui.deleteTaskFailed();
+        catch (ArrayIndexOutOfBoundsException e){
+            DukeException.getError(DukeException.arrayOutOfBounds("delete"));
+        }
+        catch (IndexOutOfBoundsException e){
+            DukeException.getError(DukeException.indexOutOfBounds("delete"));
+
         }
 
     }
@@ -91,8 +100,8 @@ public class Duke{
 
             Deadline d = new Deadline(eventDescription, deadline);
             task.createTask(d);
-            System.out.print("Deadline ");
-            ui.echoUserInputAdded(userInput);
+
+            ui.userAddedDeadline(userInput);
         }
 
         else {
@@ -113,8 +122,8 @@ public class Duke{
             Event event = new Event(eventDescription, start, end);
             task.createTask(event);
 
-            System.out.print("Event ");
-            ui.echoUserInputAdded(userInput);
+
+            ui.userAddedEvent(userInput);
         }
 
         else {
@@ -125,14 +134,14 @@ public class Duke{
     public void keywordTask(String userInput){
         ToDo todo = new ToDo(userInput);
         task.createTask(todo);
-        System.out.print("Task to do ");
-        ui.echoUserInputAdded(userInput);
+        ui.userAddedTask(userInput);
     }
 
     /**
      * Inputs which are not related to mark, delete, deadlines, events nor tasks
      */
     public boolean isGeneralKeyword(String trimmedUserInput){
+        
 
         if (trimmedUserInput.isBlank()) {
             botStatus.botBecomesImpatient();
@@ -183,7 +192,7 @@ public class Duke{
                     markUserIndex(keyword[1]);
                 }
                 catch (ArrayIndexOutOfBoundsException e){
-                    DukeException.getError(DukeException.arrayOutOfBounds());
+                    DukeException.getError(DukeException.arrayOutOfBounds("mark"));
                     ui.getErrorHelpMark();
                 }
                 finally {
@@ -224,7 +233,7 @@ public class Duke{
     public void botListensForInput() {
         ui.drawLine();
 
-        String userInput = ui.cleanUserCommand();
+        String userInput = parser.tidyUserInput();
         
         if (!isGeneralKeyword(userInput)){
             scanAdvanceKeywords(userInput);

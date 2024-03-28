@@ -1,4 +1,4 @@
-package Task;
+package TaskList;
 
 public class Event extends Task {
     protected String start;

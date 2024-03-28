@@ -1,6 +1,5 @@
-package Task;
+package TaskList;
 
-import Exception.DukeException;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,6 +38,7 @@ public class Task {
     public void deleteTask(int taskNo) {
 
         //System.out.println("I've deleted " + tasksStorage.get(taskNo - 1));
+
         tasksStorage.remove(taskNo - 1);
         taskSize--;
 
@@ -83,7 +83,6 @@ public class Task {
             }
         }
 
-
     }
 
     //Retrieve String description
@@ -91,6 +90,10 @@ public class Task {
         return description;
     }
 
+    public String getTaskBeforeDelete(int taskNumber){
+        return String.valueOf((tasksStorage.get(taskNumber-1)));
+
+    }
 
     //Retrieve & Update Boolean isDone
     public boolean getIsDone(){
@@ -119,7 +122,7 @@ public class Task {
                 Task task = tasksStorage.get(index);
                 task.isDone = !task.isDone;
 
-                System.out.println("Task " + counter + " marked as " + (task.isDone ? "done!" : "undone!"));
+                System.out.println("TaskList " + counter + " marked as " + (task.isDone ? "done!" : "undone!"));
 
                 System.out.print(counter + ".");
                 System.out.print("[" + task.getStatusIcon() + "] ");

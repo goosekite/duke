@@ -4,20 +4,12 @@ import java.util.Scanner;
 
 public class JenkinsUI {
     protected String chatBotName = "Jenkins";
-    protected String userInput = "";
-    public String getChatBotName(){
+
+    protected String getChatBotName(){
         return chatBotName;
     }
 
-    public String cleanUserCommand(){
-        Scanner sc = new Scanner(System.in);
-        userInput = sc.nextLine();
-        return userInput.trim();
-    }
-
-
-
-
+    //Source: https://patorjk.com/software/taag/#p=display&f=Ogre&t=Jenkins
     public void printLogo(){
         System.out.println("       _            _    _           ");
         System.out.println("      | |          | |  (_)          ");
@@ -68,9 +60,6 @@ public class JenkinsUI {
         System.out.println("mark [Task number]");
     }
 
-    public void getErrorHelpDelete(){
-        System.out.println("For example: delete 1");
-    }
 
     public void getErrorHelpBy(){
         System.out.println("I noticed your intent to create a deadline with \"by\"");
@@ -104,7 +93,7 @@ public class JenkinsUI {
     public void changeChatBotName(){
         System.out.println(getChatBotName() + ": Sure! Please key in my new name");
         Scanner sc = new Scanner(System.in); //open scanner!
-        userInput = sc.nextLine();
+        String userInput = sc.nextLine();
 
         String name = userInput.trim();
         setChatBotName(name);
@@ -112,18 +101,22 @@ public class JenkinsUI {
         System.out.println(getChatBotName() + ": Right away!");
     }
 
+    public void userAddedTask(String taskDescription){
+        System.out.println("Task to do added: " + taskDescription);
+    }
 
-    public void echoUserInputAdded(String s){
-        System.out.println("added: " + s);
+    public void userAddedEvent(String taskDescription){
+        System.out.println("Event added: " + taskDescription);
+    }
+
+    public void userAddedDeadline(String taskDescription){
+        System.out.println("Deadline added: " + taskDescription);
+    }
+
+    public void taskDeletedSuccessfully(String taskDescription){
+        System.out.println("Certainly, I've deleted " + taskDescription);
     }
 
 
-    public void deleteTaskSuccess(){
-        System.out.println("Certainly, I've deleted ");
-    }
-
-    public void deleteTaskFailed(){
-        System.out.println("Sorry, We have no such task in our records");
-    }
 
 }
