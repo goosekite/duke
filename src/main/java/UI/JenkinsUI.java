@@ -56,10 +56,16 @@ public class JenkinsUI {
         System.out.println("delete [Task number] - Delete Task.Task");
     }
 
-    public void getErrorHelpMark(){
-        System.out.println("mark [Task number]");
+    public void searchTaskToMark(int taskNumber){
+        System.out.println("Searching for task " + taskNumber + "...");
     }
 
+    public void displayMarkedTask(int index, String doneStatus, String taskIcon, String taskDescription){
+        System.out.println("Task " + index + " marked as " + doneStatus);
+        System.out.print(index + ".");
+        System.out.print("[" + taskIcon + "] ");
+        System.out.println(taskDescription);
+    }
 
     public void getErrorHelpBy(){
         System.out.println("I noticed your intent to create a deadline with \"by\"");
@@ -113,10 +119,32 @@ public class JenkinsUI {
         System.out.println("Deadline added: " + taskDescription);
     }
 
-    public void taskDeletedSuccessfully(String taskDescription){
+    public void displayDeletedTask(String taskDescription){
         System.out.println("Certainly, I've deleted " + taskDescription);
     }
 
+    public void preTaskSizeFeedback(int taskSize){
+        if (taskSize > 1) {
+            System.out.println("Right away! I found " + taskSize + " tasks!");
+        }
 
+        if (taskSize >= 5){
+            System.out.println("Oh my! you have " + taskSize + " tasks!");
+        }
+    }
+
+    public void postTaskSizeFeedback(int taskSize){
+        if (taskSize == 0){
+            System.out.println("Sorry, I found no task :(");
+        }
+
+        else if (taskSize == 1){
+            System.out.println("Marvelous, Only 1 outstanding task left to complete!");
+        }
+    }
+
+    public void stackStatus(String stackStatus){
+        System.out.println(stackStatus);
+    }
 
 }

@@ -38,6 +38,10 @@ public class DukeException extends Exception{
     public static DukeException indexOutOfBounds(String keyword){
         return new DukeException("There is no such task to " + keyword);
     }
+
+    public static DukeException filePathDoesNotExist(){
+        return new DukeException("Sorry, the file path is not initialised. Storage loading failed. Creating empty list.. ");
+    }
 }
 
 

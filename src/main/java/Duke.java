@@ -24,7 +24,7 @@ public class Duke{
         botStatus = new BotStatus();
 
         storage = new Storage();
-        storage.tryStorage();
+        storage.storageDooDad();
     }
 
     /**
@@ -35,8 +35,11 @@ public class Duke{
 
         do{
             botListensForInput();
+            //Save undo
+            //Save list
         }
         while (botIsAlive());
+
 
         botStatus.quitProgram();
         ui.chatBotSaysBye();
@@ -46,43 +49,63 @@ public class Duke{
         return (botStatus.chatBotIsOnline() && botStatus.isBotPatient());
     }
 
-    /**
-     * These 5 methods are logic for scanAdvanceKeywords()
+    /** Mark has 3 points of failure:
+     * "mark" - User did not follow instructions: NumberFormatException e
+     * "mark v" - User did not follow instructions: ArrayIndexOutOfBoundsException
+     * "mark 1" - Correct input, but no such Task Index exists: IndexOutOfBoundsException
      */
     public void markUserIndex(String[] keyword){
+        int validTaskNumber = -1;
+
         try {
-            String index = keyword[1];
-            tasks.markAsDone(index);
+            int taskNumber = parser.getTaskNumber(keyword[1]);
+            ui.searchTaskToMark(taskNumber);
+
+            if (parser.taskNumberIsValid(taskNumber, tasks)) {
+                validTaskNumber = taskNumber;
+            }
+                int index = validTaskNumber - 1;
+                Task t = tasks.retrieveTaskDetails(index);
+
+                tasks.markTaskIndex(index);
+                ui.displayMarkedTask(taskNumber, t.taskIsDone(t), t.getStatusIcon(), t.getTaskDescription());
+
+//                parser.addToStack("a");
+                parser.addToStack("mark " + tasks.getTaskSize());
+
+
+        }
+        catch (NumberFormatException e){
+            DukeException.getError(DukeException.expectIntegerButInputIsString("mark"));
         }
         catch (ArrayIndexOutOfBoundsException e){
             DukeException.getError(DukeException.arrayOutOfBounds("mark"));
-            ui.getErrorHelpMark();
         }
-
-    }
-
-    public boolean taskNumberIsValid(int taskNo) {
-        return taskNo <= tasks.getTaskSize() && taskNo > 0;
+        catch (IndexOutOfBoundsException e){ //taskNumber is -1
+            DukeException.getError(DukeException.indexOutOfBounds("mark"));
+        }
     }
 
     /** Delete has 3 points of failure:
-     * "delete" - User did not follow instructions
-     * "delete v" - User did not follow instructions
-     * "delete 1" - Correct input, but no such Task Index exists
+     * "delete" - User did not follow instructions: NumberFormatException e
+     * "delete v" - User did not follow instructions: ArrayIndexOutOfBoundsException
+     * "delete 1" - Correct input, but no such Task Index exists: IndexOutOfBoundsException
      */
     public void keywordDelete(String[] keyword) {
         int validTaskNumber = -1;
 
         try{
             int taskNumber = Integer.parseInt(keyword[1]);
-            if (taskNumberIsValid(taskNumber)) {
+            if (parser.taskNumberIsValid(taskNumber, tasks)) {
                 validTaskNumber = taskNumber;
             }
 
             String s = tasks.getTaskBeforeDelete(validTaskNumber); //for undo
 
+            parser.addToStack(s);
+
             tasks.deleteTask(validTaskNumber);
-            ui.taskDeletedSuccessfully(s);
+            ui.displayDeletedTask(s);
         }
         catch (NumberFormatException e){
             DukeException.getError(DukeException.expectIntegerButInputIsString("delete"));
@@ -93,6 +116,7 @@ public class Duke{
         catch (IndexOutOfBoundsException e){
             DukeException.getError(DukeException.indexOutOfBounds("delete"));
         }
+
     }
 
     public void keywordBy(String userInput){
@@ -108,6 +132,9 @@ public class Duke{
             tasks.createTask(d);
 
             ui.userAddedDeadline(userInput);
+
+            parser.addToStack("delete " + tasks.getTaskSize());
+
         }
 
         else {
@@ -128,8 +155,10 @@ public class Duke{
             Event event = new Event(eventDescription, start, end);
             tasks.createTask(event);
 
-
             ui.userAddedEvent(userInput);
+
+            parser.addToStack("delete " + tasks.getTaskSize());
+
         }
 
         else {
@@ -138,17 +167,22 @@ public class Duke{
     }
 
     public void keywordTask(String userInput){
+
         ToDo todo = new ToDo(userInput);
         tasks.createTask(todo);
         ui.userAddedTask(userInput);
+
+        parser.addToStack("delete " + tasks.getTaskSize());
+        //I cannot
+        //parser.addToStack("delete " + todo.convertToCommand()); because my delete is not by task name, is by index
     }
 
     /**
-     * Inputs which are not related to mark, delete, deadlines, events nor tasks
+     * These safe keywords will never trigger DukeExceptions
      */
     public boolean isGeneralKeyword(String trimmedUserInput){
 
-        if (trimmedUserInput.isBlank()) {
+        if (trimmedUserInput.isBlank() || trimmedUserInput.isEmpty()) {
             botStatus.botBecomesImpatient();
             ui.patienceFeedback(botStatus.botPatienceMeter());
             return true;
@@ -160,7 +194,12 @@ public class Duke{
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("list")){
-            tasks.printWordDiary();
+            int taskSize = tasks.getTaskSize();
+
+            ui.preTaskSizeFeedback(taskSize);
+            tasks.printTaskList();
+            ui.postTaskSizeFeedback(taskSize);
+
             botStatus.resetImpatience();
             return true;
         }
@@ -177,11 +216,25 @@ public class Duke{
             return true;
         }
 
+        else if (trimmedUserInput.equalsIgnoreCase("undo")){
+
+
+            String s = parser.peekStack();
+            parser.removeFromStack();
+
+
+            String[] keyword = s.split(" ", 2);
+
+            keywordDelete(keyword);
+
+        }
+
         return false;
     }
 
     /** Responds to [mark] [delete], Deadlines [by ], Events [from]... [to] and Tasks
      * DukeException catches errors here
+     * Undo records userInput in Stack
      */
     public void scanAdvanceKeywords(String userInput)  {
         botStatus.resetImpatience();
@@ -193,14 +246,14 @@ public class Duke{
         switch (keyword[0]){
             case "mark":
             case "unmark":
-//                    markUserIndex(keyword[1]);
-                    markUserIndex(keyword);
-                    isMarkOrDelete = true;
+                markUserIndex(keyword);
+                isMarkOrDelete = true;
                 break;
 
             case "delete":
-                    keywordDelete(keyword);
-                    isMarkOrDelete = true;
+                keywordDelete(keyword);
+                isMarkOrDelete = true;
+                break;
         }
 
         // Level 4-2 Deadlines
@@ -215,11 +268,11 @@ public class Duke{
             isDeadlineEvent = true; //corner case from from to to
         }
 
-        /**Level 4-1 Task To do
+        /* Level 4-1 Task To do
           @param isMarkOrDelete prevents user from saving keyword "mark" "delete" as Task
           @param isDeadlineEvent prevents bot from saving userInput 2 times: 1st as Deadline/Event. 2nd as Task
          */
-        if (!isMarkOrDelete && !isDeadlineEvent){
+        if (!isMarkOrDelete && !isDeadlineEvent && !userInput.equals("undo") && !userInput.contains("delete")){
             keywordTask(userInput);
         }
     }
@@ -230,11 +283,8 @@ public class Duke{
      */
     public void botListensForInput() {
         ui.drawLine();
-
         String userInput = parser.tidyUserInput();
 
-        //Technically this is more efficient because it stops earlier than looping everything.
-        //so I suppose this is ok since we're not looping through 20+ conditional statements,
         if (!isGeneralKeyword(userInput)){
             scanAdvanceKeywords(userInput);
         }
