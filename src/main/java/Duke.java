@@ -1,258 +1,310 @@
-import java.lang.System;
-import java.util.Scanner;
+import Logic.Parser;
+import Storage.Storage;
+import TaskList.*;
+import UI.JenkinsUI;
+import Logic.BotStatus;
+import Exception.DukeException;
+
+import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 public class Duke{
-    private static Task task;
 
-    private String chatBotName = "Jenkins";
-    public static String userInput = "";
-    public static Boolean chatBotOnline = false;
-    public static byte blankUserInputCount = 0;
+    private static Task tasks;
+    private final JenkinsUI ui;
+    private final Parser parser;
+    private final Storage storage;
+    private final BotStatus botStatus;
+
 
     public Duke(){
-        chatBotOnline = false;
+        tasks = new Task();
+        ui = new JenkinsUI();
+        parser = new Parser();
+        botStatus = new BotStatus();
+
+        storage = new Storage();
+
+        Queue<String> queue = storage.loadData();
+
+        while (!queue.isEmpty()){
+            String s = queue.peek();
+            scanAdvanceKeywords(s);
+            queue.poll();
+        }
     }
 
-    public String getChatBotName(){
-        return this.chatBotName;
+    /**
+     * Lifeblood of the system are: run() and botIsAlive()
+     */
+    public void run() {
+        ui.chatBotSaysHello();
+        tasks.printTaskList();
+
+        do{
+            botListensForInput();
+            //Save undo
+
+        }
+        while (botIsAlive());
+
+        String s = tasks.printTaskListForRecording();
+
+        storage.saveDataToStorage(s);
+        botStatus.quitProgram();
+        ui.chatBotSaysBye();
     }
 
-    public void changeChatBotName(){
-        System.out.println(getChatBotName() + ": Sure! Please key in my new name");
-        Scanner sc = new Scanner(System.in); //open scanner!
-        userInput = sc.nextLine();
-
-        String name = userInput.trim();
-        setChatBotName(name);
-
-        System.out.println(getChatBotName() + ": Right away!");
-        sc.close();
-
+    public boolean botIsAlive(){
+        return (botStatus.chatBotIsOnline() && botStatus.isBotPatient());
     }
 
-    public void powerOn(){
-        chatBotOnline = true;
-        chatBotGreetings();
-        task = new Task();
-        listenForInput();
+    /** Mark has 3 points of failure:
+     * "mark" - User did not follow instructions: NumberFormatException e
+     * "mark v" - User did not follow instructions: ArrayIndexOutOfBoundsException
+     * "mark 1" - Correct input, but no such Task Index exists: IndexOutOfBoundsException
+     */
+    public void markUserIndex(String[] keyword){
+        int validTaskNumber = -1;
+
+        try {
+            int taskNumber = parser.getTaskNumber(keyword[1]);
+            ui.searchTaskToMark(taskNumber);
+
+            if (parser.taskNumberIsValid(taskNumber, tasks)) {
+                validTaskNumber = taskNumber;
+            }
+                int index = validTaskNumber - 1;
+                Task t = tasks.retrieveTaskDetails(index);
+
+                tasks.markTaskIndex(index);
+                ui.displayMarkedTask(taskNumber, t.taskIsDone(t), t.getStatusIcon(), t.getTaskDescription());
+
+//                parser.addToStack("a");
+                parser.addToUndoStack("mark " + tasks.getTaskSize());
+
+
+        }
+        catch (NumberFormatException e){
+            DukeException.getError(DukeException.expectIntegerButInputIsString("mark"));
+        }
+        catch (ArrayIndexOutOfBoundsException e){
+            DukeException.getError(DukeException.arrayOutOfBounds("mark"));
+        }
+        catch (IndexOutOfBoundsException e){ //taskNumber is -1
+            DukeException.getError(DukeException.indexOutOfBounds("mark"));
+        }
     }
 
-    //Extra 1 - Impatience Meter
-    public void botGetsImpatient(int blankUserInput){
-        final int botMaxPatience = 2;
-        int botPatience = botMaxPatience - blankUserInput;
+    /** Delete has 3 points of failure:
+     * "delete" - User did not follow instructions: NumberFormatException e
+     * "delete v" - User did not follow instructions: ArrayIndexOutOfBoundsException
+     * "delete 1" - Correct input, but no such Task Index exists: IndexOutOfBoundsException
+     */
+    public void keywordDelete(String[] keyword) {
+        int validTaskNumber = -1;
 
-        if (botPatience > 1) {
-            System.out.println("Sorry, I did not receive any commands");
-            System.out.println("I will leave if there's no one around. " + botPatience + " more chance");
-            listenForInput();
+        try{
+            int taskNumber = Integer.parseInt(keyword[1]);
+            if (parser.taskNumberIsValid(taskNumber, tasks)) {
+                validTaskNumber = taskNumber;
+            }
+
+            String s = tasks.getTaskBeforeDelete(validTaskNumber); //for undo
+
+            parser.addToUndoStack(s);
+
+            tasks.deleteTask(validTaskNumber);
+            ui.displayDeletedTask(s);
+        }
+        catch (NumberFormatException e){
+            DukeException.getError(DukeException.expectIntegerButInputIsString("delete"));
+        }
+        catch (ArrayIndexOutOfBoundsException e){
+            DukeException.getError(DukeException.arrayOutOfBounds("delete"));
+        }
+        catch (IndexOutOfBoundsException e){
+            DukeException.getError(DukeException.indexOutOfBounds("delete"));
         }
 
-        else if (botPatience == 1) {
-            System.out.println("Last Chance! Please issue a command or I will leave!");
-            listenForInput();
+    }
+
+    public void keywordBy(String userInput){
+        Pattern pattern = Pattern.compile("(.+) by (.+)");
+        Matcher matcher = pattern.matcher(userInput);
+
+        if (matcher.find()) {
+
+            String eventDescription = matcher.group(1);
+            String deadline = matcher.group(2);
+
+            Deadline d = new Deadline(eventDescription, deadline);
+            tasks.createTask(d);
+
+            ui.userAddedDeadline(userInput);
+
+            parser.addToUndoStack("delete " + tasks.getTaskSize());
+
         }
 
         else {
-            System.out.println("Looks like no one's here. Good bye");
-            quitProgram();
+            ui.getErrorHelpBy();
         }
     }
 
-    //Level 1 Echo
-    public void echoUserInputAdded(String s){
-        System.out.println("added: " + s);
-        listenForInput();
+    public void keywordFromTo(String userInput){
+        Pattern pattern = Pattern.compile("(.+) from (.+) to (.+)");
+        Matcher matcher = pattern.matcher(userInput);
+
+        if (matcher.find()) {
+
+            String eventDescription = matcher.group(1);
+            String start = matcher.group(2);
+            String end = matcher.group(3);
+
+            Event event = new Event(eventDescription, start, end);
+            tasks.createTask(event);
+
+            ui.userAddedEvent(userInput);
+
+            parser.addToUndoStack("delete " + tasks.getTaskSize());
+
+        }
+
+        else {
+            ui.getErrorHelpFromTo();
+        }
     }
 
-    //Extra 2 - just a drawing a line
-    public void drawLine() {
-        System.out.println("____________________________________________________________");
+    public void keywordTask(String userInput){
+
+        ToDo todo = new ToDo(userInput);
+        tasks.createTask(todo);
+        ui.userAddedTask(userInput);
+
+        parser.addToUndoStack("delete " + tasks.getTaskSize());
+        //I cannot
+        //parser.addToStack("delete " + todo.convertToCommand()); because my delete is not by task name, is by index
     }
 
+    /**
+     * These safe keywords will never trigger DukeExceptions
+     */
+    public boolean isGeneralKeyword(String trimmedUserInput){
 
-    //Level 0-1 Rename
-    public void setChatBotName(String userInput){
-        this.chatBotName = userInput;
+        if (trimmedUserInput.isBlank() || trimmedUserInput.isEmpty()) {
+            botStatus.botBecomesImpatient();
+            ui.patienceFeedback(botStatus.botPatienceMeter());
+            return true;
+        }
+
+        else if (trimmedUserInput.equalsIgnoreCase("bye") || trimmedUserInput.equalsIgnoreCase("quit")){
+            botStatus.quitProgram();
+            return true;
+        }
+
+        else if (trimmedUserInput.equalsIgnoreCase("list")){
+            int taskSize = tasks.getTaskSize();
+
+            ui.preTaskSizeFeedback(taskSize);
+            tasks.printTaskList();
+            ui.postTaskSizeFeedback(taskSize);
+
+            botStatus.resetImpatience();
+            return true;
+        }
+
+        else if (trimmedUserInput.equalsIgnoreCase("d")){
+            System.out.println(tasks.printTaskListForRecording());
+            return true;
+        }
+
+        else if (trimmedUserInput.equalsIgnoreCase("help") || trimmedUserInput.equalsIgnoreCase("faq")){
+            ui.getHelp();
+            botStatus.resetImpatience();
+            return true;
+        }
+
+        else if (trimmedUserInput.equalsIgnoreCase("change bot name")){
+            ui.changeChatBotName();
+            botStatus.resetImpatience();
+            return true;
+        }
+
+        else if (trimmedUserInput.equalsIgnoreCase("undo")){
+
+            String s = parser.peekUndoStack();
+            parser.removeFromUndoStack();
+
+            String[] keyword = s.split(" ", 2);
+            ui.undoSuccess();
+            keywordDelete(keyword);
+
+        }
+
+        return false;
     }
 
-    //Level 0-2 Greet
-    public void chatBotGreetings(){
-        System.out.println(getChatBotName() + ": Hello! you may call me " + getChatBotName() + ". I remember it, so you don't have to!");
-        System.out.println("What can I do for you?");
-    }
+    /** Responds to [mark] [delete], Deadlines [by ], Events [from]... [to] and Tasks
+     * DukeException catches errors here
+     * Undo records userInput in Stack
+     */
+    public void scanAdvanceKeywords(String userInput)  {
+        botStatus.resetImpatience();
+        boolean isDeadlineEvent = false, isMarkOrDelete = false;
 
-    //Exhaustive HELP list for user, easy reference for programmers
-    public void help(){
-        System.out.println(getChatBotName() + ": Certainly! Here are all commands that I can understand:");
-        System.out.println("help or {.} - prints this help list to help recall");
-        System.out.println("bye - exits program --- tap {ENTER} 3 times)");
-        System.out.println("tap {ENTER} 3 times to exit program quickly");
-        drawLine();
-
-        System.out.println("[Task] - records Tasks");
-        System.out.println("[Task] by [timing] - records Deadlines");
-        System.out.println("[Task] from [time] to [time] - records Events");
-
-        System.out.println("mark OR unmark [Task number] - Marks/Unmarks Task number");
-        System.out.println("list - prints all recorded events");
-        System.out.println("Delete [Task number] - Delete Task");
-    }
-
-    //case 1 User press enters 3 times, bots impatient then quits.
-    //case 2 user enters "bye"
-    public void quitProgram(){
-        chatBotOnline = false;
-        System.out.print(getChatBotName() + ": Bye. Hope to see you again soon!\n");
-    }
-
-    public void scanKeyword(String userInput)  {
-        blankUserInputCount = 0; // resets inpatient meter
-        boolean markedEvent = false; //important flag. #1 Don't confuse (mark, deadlines and events) with Task.
         String[] keyword = userInput.split(" ", 2);
 
-
-
-        //Level 4 Mark
+        //Level 4-0 Mark
         switch (keyword[0]){
             case "mark":
             case "unmark":
-                task.markAsDone(keyword[1]);
-                markedEvent = true;
+                markUserIndex(keyword);
+                isMarkOrDelete = true;
                 break;
+
             case "delete":
-                try {
-                int taskNumber = Integer.parseInt(keyword[1]); //problems comes from converting string to number
-                task.deleteTask(taskNumber);
-                } catch (DukeException e) {
-                    throw new RuntimeException(e);
-                } catch (NumberFormatException e) {
-                    DukeException.getError(DukeException.invalidTaskNumber());
-                } catch (IllegalArgumentException e) {
-                    DukeException.getError(DukeException.expectIntbutInputString());
-                }
-
-//                finally {
-//                    System.out.println("Sorry, There's no such task number");
-//                }
-                markedEvent = true; //corner case delete [No] should not be added as task
-                task.printWordDiary();
-
+                keywordDelete(keyword);
+                isMarkOrDelete = true;
+                break;
         }
 
         // Level 4-2 Deadlines
         if (userInput.contains("by ")){
-
-            Pattern pattern = Pattern.compile("(.+) by (.+)");
-            Matcher matcher = pattern.matcher(userInput);
-
-            if (matcher.find()) {
-
-                String eventDescription = matcher.group(1);
-                String deadline = matcher.group(2);
-
-                Deadline d = new Deadline(eventDescription, deadline);
-                task.createTask(d);
-                System.out.print("Deadline ");
-                echoUserInputAdded(userInput);
-            }
-
-            else {
-                System.out.println("I noticed your intent to create a deadline with \"by\"");
-                System.out.println("Please input as follows: [Task] by [timing]");
-                markedEvent = true; //corner case - by from to
-            }
-
+            keywordBy(userInput);
+            isDeadlineEvent = true;
         }
 
         // Level 4-3 Events
         if (userInput.contains("from ") && userInput.contains("to ")){
-            Pattern pattern = Pattern.compile("(.+) from (.+) to (.+)");
-            Matcher matcher = pattern.matcher(userInput);
-
-            if (matcher.find()) {
-
-                String eventDescription = matcher.group(1);
-                String start = matcher.group(2);
-                String end = matcher.group(3);
-
-                Event event = new Event(eventDescription, start, end);
-                task.createTask(event);
-
-                System.out.print("Event ");
-                echoUserInputAdded(userInput);
-            }
-
-            else {
-                System.out.println("Seems like you want to create an event with \"from\" & \"to\"");
-                System.out.println("Please input as follows: [Task] from [time] to [time]");
-                markedEvent = true; //corner case from from to to
-            }
+            keywordFromTo(userInput);
+            isDeadlineEvent = true; //corner case from from to to
         }
 
-        // Level 4-1 Task To do
-        if (!markedEvent){
-            ToDo todo = new ToDo(userInput);
-            task.createTask(todo);
-            System.out.print("Task to do ");
-            echoUserInputAdded(userInput);
+        /* Level 4-1 Task To do
+          @param isMarkOrDelete prevents user from saving keyword "mark" "delete" as Task
+          @param isDeadlineEvent prevents bot from saving userInput 2 times: 1st as Deadline/Event. 2nd as Task
+         */
+        if (!isMarkOrDelete && !isDeadlineEvent && !userInput.equals("undo") && !userInput.contains("delete")){
+            keywordTask(userInput);
         }
-
-/*
-            //case: future implementations
-            else if (true){
-                //future implementations do something
-            }
-*/
     }
 
+    /** Purpose of the system is to listen to user
+     * General: Quality of life functions
+     * Advance: Bot functions as intended
+     */
+    public void botListensForInput() {
+        ui.drawLine();
+        String userInput = parser.tidyUserInput();
 
-
-    public void listenForInput() {
-
-        drawLine();
-        Scanner sc = new Scanner(System.in);
-        userInput = sc.nextLine();
-
-            String trimmedUserInput = userInput.trim();
-
-            if (userInput.isBlank()) {
-                botGetsImpatient(blankUserInputCount++);
-            }
-
-            else if (userInput.equalsIgnoreCase("bye")){
-                quitProgram();
-            }
-
-            else if (userInput.equalsIgnoreCase("list")){
-                task.printWordDiary();
-            }
-
-            else if (userInput.equalsIgnoreCase("help")){
-                help();
-            }
-
-            else if (userInput.equalsIgnoreCase("change bot name")){
-                changeChatBotName();
-            }
-
-            else{
-                scanKeyword(trimmedUserInput);
-            }
-
-            //recursive on purpose until user terminates using "bye"
-            if (chatBotOnline){
-                listenForInput();
-            }
-
+        if (!isGeneralKeyword(userInput)){
+            scanAdvanceKeywords(userInput);
+        }
     }
 
     public static void main(String[] args) {
-        Duke Jenkins = new Duke();
-        Jenkins.powerOn();
+        new Duke().run();
     }
-
 }

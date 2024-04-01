@@ -1,4 +1,6 @@
-public class Event extends Task{
+package TaskList;
+
+public class Event extends Task {
     protected String start;
     protected String end;
 
@@ -11,6 +13,10 @@ public class Event extends Task{
     @Override
     public String toString() {
         return "[E]" + super.toString() + " (from: " + start + " to: " + end + " )";
+    }
+
+    public String convertToCommand(){
+        return description + " from " + start + " to " + end;
     }
 }
 
