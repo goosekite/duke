@@ -24,7 +24,7 @@ public class Duke{
         botStatus = new BotStatus();
 
         storage = new Storage();
-        storage.storageDooDad();
+        storage.loadData();
     }
 
     /**
@@ -36,11 +36,16 @@ public class Duke{
         do{
             botListensForInput();
             //Save undo
-            //Save list
+
+            String s = "s";
+
+
         }
         while (botIsAlive());
 
+        String s = tasks.printTaskListforRecording();
 
+        storage.saveDataToStorage(s);
         botStatus.quitProgram();
         ui.chatBotSaysBye();
     }
@@ -201,6 +206,11 @@ public class Duke{
             ui.postTaskSizeFeedback(taskSize);
 
             botStatus.resetImpatience();
+            return true;
+        }
+
+        else if (trimmedUserInput.equalsIgnoreCase("d")){
+            System.out.println(tasks.printTaskListforRecording());
             return true;
         }
 

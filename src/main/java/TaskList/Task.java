@@ -58,24 +58,41 @@ public class Task {
 
         //1 way to improve is having an enum to store high medium low amount of task.
         if (getTaskSize() == 1){
-            System.out.print(tasksStorage.get(0).toString() + "\n");
+            System.out.print(tasksStorage.get(0).toString() + System.lineSeparator());
         }
 
          else if (getTaskSize() < 5){
             for (int i = 0; i < tasksStorage.size(); i++) {
                 Task t = tasksStorage.get(i);
-                System.out.print(i + 1 + " " + t.toString() + "\n");
+                System.out.print(i + 1 + " " + t.toString() + System.lineSeparator());
             }
         }
 
          else{
             for (int i = 0; i < tasksStorage.size(); i++) {
                 Task t = tasksStorage.get(i);
-                System.out.print(i + 1 + " " + t.toString() + "\n");
+                System.out.print(i + 1 + " " + t.toString() + System.lineSeparator());
             }
         }
     }
 
+    public String printTaskListforRecording(){
+        StringBuilder sb = new StringBuilder();
+
+        if (taskSize == 0){
+            return "";
+        }
+
+        //https://stackoverflow.com/questions/14534767/how-to-append-a-newline-to-stringbuilder
+        for (int i = 0; i < tasksStorage.size(); i++) {
+            Task t = tasksStorage.get(i);
+            sb.append(t.toString());
+            sb.append(System.lineSeparator());
+        }
+
+        return sb.toString();
+
+    }
 
 
     //Retrieve String description
