@@ -76,7 +76,7 @@ public class Task {
         }
     }
 
-    public String printTaskListforRecording(){
+    public String printTaskListForRecording(){
         StringBuilder sb = new StringBuilder();
 
         if (taskSize == 0){
@@ -86,10 +86,9 @@ public class Task {
         //https://stackoverflow.com/questions/14534767/how-to-append-a-newline-to-stringbuilder
         for (int i = 0; i < tasksStorage.size(); i++) {
             Task t = tasksStorage.get(i);
-            sb.append(t.toString());
+            sb.append(t.convertToCommand());
             sb.append(System.lineSeparator());
         }
-
         return sb.toString();
 
     }

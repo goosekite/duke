@@ -143,8 +143,8 @@ public class JenkinsUI {
         }
     }
 
-    public void stackStatus(String stackStatus){
-        System.out.println(stackStatus);
+    public void undoSuccess(){
+        System.out.println("As you wish! Undo command!");
     }
 
 }

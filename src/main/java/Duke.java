@@ -5,6 +5,7 @@ import UI.JenkinsUI;
 import Logic.BotStatus;
 import Exception.DukeException;
 
+import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,7 +25,14 @@ public class Duke{
         botStatus = new BotStatus();
 
         storage = new Storage();
-        storage.loadData();
+
+        Queue<String> queue = storage.loadData();
+
+        while (!queue.isEmpty()){
+            String s = queue.peek();
+            scanAdvanceKeywords(s);
+            queue.poll();
+        }
     }
 
     /**
@@ -32,18 +40,16 @@ public class Duke{
      */
     public void run() {
         ui.chatBotSaysHello();
+        tasks.printTaskList();
 
         do{
             botListensForInput();
             //Save undo
 
-            String s = "s";
-
-
         }
         while (botIsAlive());
 
-        String s = tasks.printTaskListforRecording();
+        String s = tasks.printTaskListForRecording();
 
         storage.saveDataToStorage(s);
         botStatus.quitProgram();
@@ -76,7 +82,7 @@ public class Duke{
                 ui.displayMarkedTask(taskNumber, t.taskIsDone(t), t.getStatusIcon(), t.getTaskDescription());
 
 //                parser.addToStack("a");
-                parser.addToStack("mark " + tasks.getTaskSize());
+                parser.addToUndoStack("mark " + tasks.getTaskSize());
 
 
         }
@@ -107,7 +113,7 @@ public class Duke{
 
             String s = tasks.getTaskBeforeDelete(validTaskNumber); //for undo
 
-            parser.addToStack(s);
+            parser.addToUndoStack(s);
 
             tasks.deleteTask(validTaskNumber);
             ui.displayDeletedTask(s);
@@ -138,7 +144,7 @@ public class Duke{
 
             ui.userAddedDeadline(userInput);
 
-            parser.addToStack("delete " + tasks.getTaskSize());
+            parser.addToUndoStack("delete " + tasks.getTaskSize());
 
         }
 
@@ -162,7 +168,7 @@ public class Duke{
 
             ui.userAddedEvent(userInput);
 
-            parser.addToStack("delete " + tasks.getTaskSize());
+            parser.addToUndoStack("delete " + tasks.getTaskSize());
 
         }
 
@@ -177,7 +183,7 @@ public class Duke{
         tasks.createTask(todo);
         ui.userAddedTask(userInput);
 
-        parser.addToStack("delete " + tasks.getTaskSize());
+        parser.addToUndoStack("delete " + tasks.getTaskSize());
         //I cannot
         //parser.addToStack("delete " + todo.convertToCommand()); because my delete is not by task name, is by index
     }
@@ -210,7 +216,7 @@ public class Duke{
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("d")){
-            System.out.println(tasks.printTaskListforRecording());
+            System.out.println(tasks.printTaskListForRecording());
             return true;
         }
 
@@ -228,13 +234,11 @@ public class Duke{
 
         else if (trimmedUserInput.equalsIgnoreCase("undo")){
 
-
-            String s = parser.peekStack();
-            parser.removeFromStack();
-
+            String s = parser.peekUndoStack();
+            parser.removeFromUndoStack();
 
             String[] keyword = s.split(" ", 2);
-
+            ui.undoSuccess();
             keywordDelete(keyword);
 
         }

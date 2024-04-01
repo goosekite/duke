@@ -5,6 +5,7 @@ import TaskList.Task;
 import java.util.Scanner;
 import java.util.Stack;
 
+
 public class Parser {
 
     Stack<String> undo = new Stack<>();
@@ -27,31 +28,35 @@ public class Parser {
         return taskNo <= tasks.getTaskSize() && taskNo > 0;
     }
 
-    public void addToStack(){
-        String s = "ASD";
-        undo.push(s);
-    }
-    public void addToStack(String s){
+    /**
+     * @param s holds the userInput to enable UNDO
+     */
+    public void addToUndoStack(String s){
         undo.push(s);
     }
 
-    public void removeFromStack(){
-        if (!undo.empty()) {
+    /**
+     * Extracts latest command from Undo Stack
+     */
+    public void removeFromUndoStack(){
+        if (undo.isEmpty()){
+            System.out.println("Stack is empty!");
+        }
 
+        else {
             undo.pop();
         }
 
-        else{
-            System.out.println("Stack is empty!");
-        }
+
     }
 
 
-
-    public String peekStack(){
+    /**
+     * @return if there is a value from Undo Stack
+     */
+    public String peekUndoStack(){
         if (!undo.isEmpty()){
-            String peek = undo.peek();
-            return peek;
+            return undo.peek();
         }
 
         return "";

@@ -1,13 +1,17 @@
 package Storage;
 
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Scanner;
 
 import Exception.DukeException;
 
 public class Storage {
+
     protected String filePath;
 
 
@@ -15,15 +19,31 @@ public class Storage {
         this.filePath = "src/main/data/duke.txt"; // Default file path
     }
 
-    public void loadData(){
+    public Queue<String> loadData(){
+        Queue<String> queue = new LinkedList<>();
+
+
         if(filePath == null) {
             System.err.println("File path is not initialized.");
         }
-//        Scanner sc = new Scanner();
+
+        try {
+
+            // Create a File object representing the file
+            File file = new File(filePath);
+            Scanner sc = new Scanner(file);
+
+            while (sc.hasNextLine()) {
+                String line = sc.nextLine();
+                queue.offer(line);
+            }
 
 
-        // Create a File object representing the file
-        File file = new File(filePath);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        return queue;
 
     }
 
