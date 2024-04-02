@@ -4,7 +4,7 @@ package Logic;
  * Determines if bot continues to listen or shut down
  * Bot will be offline if it loses all patience or user switch it off manually
  * Patience is lost when user inputs nothing, but resets when user inputs anything
- * See Duke -> botIsAlive();
+ * See Duke.Duke -> botIsAlive();
  */
 public class BotStatus {
 

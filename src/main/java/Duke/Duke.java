@@ -1,3 +1,5 @@
+package Duke;
+
 import Logic.Parser;
 import Storage.Storage;
 import TaskList.*;
