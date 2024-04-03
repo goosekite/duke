@@ -143,8 +143,8 @@ public class JenkinsUI {
         }
     }
 
-    public void undoSuccess(){
-        System.out.println("As you wish! Undo command!");
+    public void acknowledgeUndoCommand(){
+        System.out.println("As you wish! Command Undo!~");
     }
 
 }

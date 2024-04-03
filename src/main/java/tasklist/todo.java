@@ -1,7 +1,7 @@
-package TaskList;
+package tasklist;
 
-public class ToDo extends Task {
-    public ToDo(String description) {
+public class todo extends task {
+    public todo(String description) {
         super(description);
     }
 

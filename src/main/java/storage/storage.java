@@ -1,4 +1,4 @@
-package Storage;
+package storage;
 
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -8,45 +8,48 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
 
-import Exception.DukeException;
+import exception.dukeexception;
 
-public class Storage {
+public class storage {
 
     protected String filePath;
 
-
-    public Storage() {
+    /** Creates a constructor and sets a default file path */
+    public storage() {
         this.filePath = "src/main/data/duke.txt"; // Default file path
     }
 
+    /**
+     * Creates a queue to and search for storage location
+     * Reads file using scanner and inserts every line into Queue
+     * @return Queue with userInput so Duke can reconstruct task list
+     */
     public Queue<String> loadData(){
         Queue<String> queue = new LinkedList<>();
-
 
         if(filePath == null) {
             System.err.println("File path is not initialized.");
         }
 
         try {
-
-            // Create a File object representing the file
-            File file = new File(filePath);
-            Scanner sc = new Scanner(file);
+            File file = new File(filePath); // Create a File object representing the file
+            Scanner sc = new Scanner(file); // Create a Scanner Object to read text file
 
             while (sc.hasNextLine()) {
-                String line = sc.nextLine();
-                queue.offer(line);
+                String line = sc.nextLine(); // Read a line and store it in a string
+                queue.offer(line); //Store string in the queue
             }
-
-
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); //Should not trigger because default file path is set
         }
 
         return queue;
-
     }
 
+    /**
+     * Saves the string of commands to be retrieved when user restarts program to a specified path
+     * @param content commands to be recorded to recreate current task list
+     */
     public void saveDataToStorage(String content) {
 
         File file = new File(filePath);
@@ -69,11 +72,8 @@ public class Storage {
                 System.out.println("Successfully wrote to the file.");
             }
         } catch (IOException e) {
-            DukeException.getError(DukeException.filePathDoesNotExist());
+            dukeexception.getError(dukeexception.filePathDoesNotExist());
         }
     }
-
-
-
 
 }

@@ -1,30 +1,33 @@
-package Logic;
+package logic;
 
-import TaskList.Task;
+import tasklist.task;
 
 import java.util.Scanner;
 import java.util.Stack;
 
 
-public class Parser {
+public class parser {
 
     Stack<String> undo = new Stack<>();
 
-    public Parser(){
+    /** Creates a default constructor */
+    public parser(){
     }
 
+    /** tidies user input */
     public String tidyUserInput(){
-
         Scanner sc = new Scanner(System.in);
         String userInput = sc.nextLine();
         return userInput.trim();
     }
 
+    /** convert task number to string from an integer input */
     public int getTaskNumber(String keyword){
             return Integer.parseInt(keyword);
     }
 
-    public boolean taskNumberIsValid(int taskNo, Task tasks) {
+    /** Checks if task number is a positive number & smaller than task size */
+    public boolean taskNumberIsValid(int taskNo, task tasks) {
         return taskNo <= tasks.getTaskSize() && taskNo > 0;
     }
 
@@ -35,9 +38,7 @@ public class Parser {
         undo.push(s);
     }
 
-    /**
-     * Extracts latest command from Undo Stack
-     */
+    /** Extracts latest command from Undo Stack */
     public void removeFromUndoStack(){
         if (undo.isEmpty()){
             System.out.println("Stack is empty!");
@@ -46,10 +47,7 @@ public class Parser {
         else {
             undo.pop();
         }
-
-
     }
-
 
     /**
      * @return if there is a value from Undo Stack
@@ -58,11 +56,7 @@ public class Parser {
         if (!undo.isEmpty()){
             return undo.peek();
         }
-
         return "";
-//        return ("There's nothing more we can undo. Life must go on");
     }
-
-
 
 }

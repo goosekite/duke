@@ -1,13 +1,13 @@
-package TaskList;
+package tasklist;
 
 
-public class Deadline extends Task {
+public class deadline extends task {
     protected String by;
 
-    public Deadline() {
+    public deadline() {
     }
 
-    public Deadline(String description, String by) {
+    public deadline(String description, String by) {
         super(description);
         this.by = by;
     }

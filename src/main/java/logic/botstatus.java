@@ -1,4 +1,4 @@
-package Logic;
+package logic;
 
 /**
  * Determines if bot continues to listen or shut down
@@ -6,7 +6,7 @@ package Logic;
  * Patience is lost when user inputs nothing, but resets when user inputs anything
  * See Duke.Duke -> botIsAlive();
  */
-public class BotStatus {
+public class botstatus {
 
     final int BOT_MAX_PATIENCE = 3;
     public byte blankUserInputCount = 0;
@@ -20,29 +20,23 @@ public class BotStatus {
     }
 
     /**
-     * @return
+     * @return true if bot patience is >0 and false if = 0
      */
     public boolean isBotPatient(){
         return (BOT_MAX_PATIENCE - blankUserInputCount) > 0;
     }
 
-    /**
-     * User input nothing
-     */
+    /** inputs with nothing will cause bot to become impatient */
     public void botBecomesImpatient(){
         blankUserInputCount++;
     }
 
-    /**
-     * User inputs anything, which will then reset the meter
-     */
+    /** Reset patience meter when user inputs anything */
     public void resetImpatience(){
         blankUserInputCount = 0;
     }
 
-    /**
-     * switches off bot online status
-     */
+    /** Switch bot to offline so Duke's do while loop will fail */
     public void quitProgram(){
         isOnline = false;
     }
