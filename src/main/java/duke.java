@@ -1,5 +1,3 @@
-package duke;
-
 import logic.parser;
 import storage.storage;
 import tasklist.*;
@@ -32,6 +30,7 @@ public class duke {
     /** Creates task list by using user commands from text file */
     public void createTaskListFromStorage(){
         Queue<String> queue = storage.loadData();
+        storage.loadDataTimeStamp();
 
         while (!queue.isEmpty()){ //Access queue, process stored user input & dequeue until empty
             String s = queue.peek();
@@ -45,6 +44,7 @@ public class duke {
      * Listens for userInput until it shuts down properly
      */
     public void run() {
+
         createTaskListFromStorage();
         ui.chatBotSaysHello();
         tasks.printTaskList();
@@ -62,8 +62,9 @@ public class duke {
      * to offline status and says goodbye
      */
     public void shutDownProperly(){
-        String s = tasks.printTaskListForRecording(); //Retrieve all tasks in a string
-        storage.saveDataToStorage(s); //Saves it to Storage
+        String s = tasks.printTaskListForRecording(); //Converts all tasks to string
+        storage.saveDataToStorage(s); //Saves tasks to Storage
+        storage.saveDateTimeStamp(); //Saves time stamp;
 
         botStatus.quitProgram(); //Change bot status to offline
         ui.chatBotSaysBye(); //Bot says bye
@@ -237,8 +238,7 @@ public class duke {
     /**
      * Parse keywords to decide which command to run
      * These safe keywords will never trigger DukeExceptions
-     * @return false to run advanceKeyword() method
-     * @return true to skip advanceKeyword() method
+     * @return false to run advanceKeyword() method, true to skip
      * This optimises the program slightly
      */
     public boolean isGeneralKeyword(String trimmedUserInput){
@@ -326,7 +326,8 @@ public class duke {
         }
     }
 
-    /** Purpose of the system is to listen to user
+    /**
+     * listen to user input, and parse keyword
      * General: Quality of life functions
      * Advance: Bot functions as intended
      */

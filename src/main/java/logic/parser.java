@@ -2,9 +2,10 @@ package logic;
 
 import tasklist.task;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 import java.util.Stack;
-
+import java.time.LocalDateTime;
 
 public class parser {
 
@@ -12,6 +13,13 @@ public class parser {
 
     /** Creates a default constructor */
     public parser(){
+    }
+
+    public static String getDateTimeNow(){
+        LocalDateTime dateTimeNow = LocalDateTime.now();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        return dateTimeNow.format(formatter);
     }
 
     /** tidies user input */

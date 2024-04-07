@@ -1,9 +1,11 @@
 package UI;
 
+import java.io.File;
 import java.util.Scanner;
 
 public class JenkinsUI {
     protected String chatBotName = "Jenkins";
+
 
     protected String getChatBotName(){
         return chatBotName;
@@ -19,7 +21,9 @@ public class JenkinsUI {
         System.out.println("  \\____/ \\___|_| |_|_|\\_\\_|_| |_|___/");
     }
 
-    //Extra 2 - just a drawing a line
+    /**
+     * Draws a line
+     */
     public void drawLine() {
         System.out.println("____________________________________________________________");
     }
@@ -38,6 +42,7 @@ public class JenkinsUI {
     public void chatBotSaysBye(){
         System.out.print(getChatBotName() + ": GoodBye, Stay Safe. I hope to see you again soon!\n");
     }
+
 
     public void getHelp(){
         System.out.println(getChatBotName() + ": Certainly! Here are all commands that I can understand:");
@@ -146,5 +151,32 @@ public class JenkinsUI {
     public void acknowledgeUndoCommand(){
         System.out.println("As you wish! Command Undo!~");
     }
+
+    public static void noFileFound(File f, String context){
+        System.out.println("I've created " + f.getName() + " because " + context + " doesn't exist in our database");
+    }
+
+    public static void foundFileToLoad(String context) {
+        System.out.println("I've found " + context + " to load! Wonderful!");
+    }
+
+    public static void loadDateTimeSuccessfully(String dateTime) {
+        System.out.println("We've last reviewed our tasks on " + dateTime);
+        System.out.println("loading...");
+    }
+
+    public static void savedTimeStampSuccessfully(String dateTime) {
+        System.out.println("I've saved timestamp on " + dateTime);
+    }
+
+    public static void creatingTimeStamp() {
+        System.out.println("Creating timestamp.. ");
+    }
+
+    public static void cantFindTimeStampSoIWillRecreate(String dateTime) {
+        System.out.println("Oh dear, I can't find when we've last saved our file");
+        System.out.println("No worries, I'll mark it as now on " + dateTime);
+    }
+
 
 }
