@@ -34,7 +34,7 @@ public class JenkinsUI {
 
     public void chatBotSaysBye(){
         botName = BotName.getChatBotName();
-        System.out.print(botName + ": GoodBye, Stay Safe. I hope to see you again soon!\n");
+        System.out.print(botName + ": I'm glad to be of service! I hope to see you again soon!\n");
     }
 
     public void getHelp(){
@@ -161,7 +161,7 @@ public class JenkinsUI {
 
     public static void savedTimeStampSuccessfully(String dateTime) {
         botName = BotName.getChatBotName();
-        System.out.println(botName + ": I've committed everything to memory on " + dateTime);
+        System.out.println("Saved data successfully to memory on " + dateTime);
     }
 
     public static void creatingTimeStamp() {

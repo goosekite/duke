@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
 
+import duke.logic.BotDateTime;
 import duke.ui.JenkinsUI;
 import duke.exception.DukeException;
 import duke.logic.Parser;
@@ -62,9 +63,8 @@ public class Storage {
     }
 
     /**
-     * Creates a queue to and search for duke.storage location
-     * Reads file using scanner and inserts every line into Queue
-     * @return Queue with userInput so duke.Duke can reconstruct task list
+     * Read file data and records it in queue
+     * @return Queue so Duke can reconstruct task list sequentially
      */
     public Queue<String> loadData(){
         Queue<String> queue = new LinkedList<>();
@@ -118,7 +118,7 @@ public class Storage {
         File file = new File(FILE_PATH_FOR_DATETIME); // Create a File object representing the file
 
         // Get time now
-        String formattedDateTime = Parser.getDateTimeNow();
+        String formattedDateTime = BotDateTime.now();
 
         //Read & inform user last access date
         try {
@@ -144,7 +144,7 @@ public class Storage {
         File file = new File(FILE_PATH_FOR_DATETIME);
 
         // Get time now
-        String formattedDateTime = Parser.getDateTimeNow();
+        String formattedDateTime = BotDateTime.now();
 
         try {
             if (file.createNewFile()) {

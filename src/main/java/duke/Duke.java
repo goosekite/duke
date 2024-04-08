@@ -1,6 +1,7 @@
 package duke;
 
 import duke.logic.BotName;
+import duke.logic.BotUndo;
 import duke.logic.Parser;
 import duke.storage.Storage;
 import duke.task.*;
@@ -47,7 +48,6 @@ public class Duke {
      * Listens for userInput until it shuts down properly
      */
     public void run() {
-
         createTaskListFromStorage();
         ui.chatBotSaysHello();
         tasks.printTaskList();
@@ -99,7 +99,7 @@ public class Duke {
                 tasks.markTaskIndex(index);
                 ui.displayMarkedTask(taskNumber, t.taskIsDone(t), t.getStatusIcon(), t.getTaskDescription());
 
-                parser.addToUndoStack("mark " + keyword[1]); //Undo remembers how to remark task
+            BotUndo.addToStack("mark " + keyword[1]); //Undo remembers how to remark task
             System.out.println("mark " + keyword[1]);
         }
         catch (NumberFormatException e){
@@ -130,7 +130,7 @@ public class Duke {
             }
 
             String s = tasks.getTaskBeforeDelete(validTaskNumber); //get String for undo
-            parser.addToUndoStack(s); //Undo remembers this
+            BotUndo.addToStack(s); //Undo remembers this
 
             tasks.deleteTask(validTaskNumber);
             ui.displayDeletedTask(s);
@@ -165,7 +165,7 @@ public class Duke {
             tasks.createTask(deadline);
 
             ui.userAddedDeadline(userInput);
-            parser.addToUndoStack("delete " + tasks.getTaskSize());
+            BotUndo.addToStack("delete " + tasks.getTaskSize());
         }
 
         else {
@@ -191,7 +191,7 @@ public class Duke {
             Event event = new Event(eventDescription, start, end);
             tasks.createTask(event);
             ui.userAddedEvent(userInput);
-            parser.addToUndoStack("delete " + tasks.getTaskSize());
+            BotUndo.addToStack("delete " + tasks.getTaskSize());
         }
 
         else {
@@ -208,7 +208,7 @@ public class Duke {
         ToDo todo = new ToDo(userInput);
         tasks.createTask(todo);
         ui.userAddedTask(userInput);
-        parser.addToUndoStack("delete " + tasks.getTaskSize());
+        BotUndo.addToStack("delete " + tasks.getTaskSize());
     }
 
     /**
@@ -231,9 +231,9 @@ public class Duke {
      */
     public void handleUndo(){
         ui.acknowledgeUndoCommand();
-        String s = parser.peekUndoStack();
+        String s = BotUndo.peekStack();
         scanAdvanceKeywords(s); //Skips isGeneralKeyword() for efficiency
-        parser.removeFromUndoStack();
+        BotUndo.removeFromStack();
     }
 
     /**
@@ -336,7 +336,7 @@ public class Duke {
      */
     public void botListensForInput() {
         ui.drawLine();
-        String userInput = parser.tidyUserInput();
+        String userInput = Parser.tidyUserInput();
 
         if (!isGeneralKeyword(userInput)){
             scanAdvanceKeywords(userInput);

@@ -10,7 +10,6 @@ public class EventTest {
 
     @Test
     public void testCreateEvent(){
-
         assertEquals("[E][ ] eat (from: noon to: 1pm )", event.toString());
     }
 
