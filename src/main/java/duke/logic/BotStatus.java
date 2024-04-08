@@ -6,7 +6,7 @@ package logic;
  * Patience is lost when user inputs nothing, but resets when user inputs anything
  * See Duke.Duke -> botIsAlive();
  */
-public class botstatus {
+public class BotStatus {
 
     final int BOT_MAX_PATIENCE = 3;
     public byte blankUserInputCount = 0;

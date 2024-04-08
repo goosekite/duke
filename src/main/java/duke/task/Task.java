@@ -1,11 +1,11 @@
-package tasklist;
+package duke.tasklist;
 
 import java.util.ArrayList;
 
 
 /** Parent Class for Deadline, Event and To do */
-public class task {
-    private ArrayList<task> tasksStorage;
+public class Task {
+    private ArrayList<Task> tasksStorage;
 
     protected String description;
     protected boolean isDone;
@@ -13,7 +13,7 @@ public class task {
     private static int taskSize = 0;
 
     /** Creates an array list by calling this default constructor */
-    public task(){
+    public Task(){
         this.tasksStorage = new ArrayList<>();
     }
 
@@ -21,7 +21,7 @@ public class task {
      * Creates a task object when this constructor is called
      * @param dukeUserInput Stores task description and sets task to be undone by default
      */
-    public task(String dukeUserInput) {
+    public Task(String dukeUserInput) {
         this.description = dukeUserInput;
         this.isDone = false;
     }
@@ -47,7 +47,7 @@ public class task {
      * Adds a task to existing arraylist and increase task size by 1
      * @param t Task details given by user
      */
-    public void createTask(task t){
+    public void createTask(Task t){
         this.tasksStorage.add(t);
         taskSize++;
     }
@@ -86,14 +86,14 @@ public class task {
 
          else if (getTaskSize() < 5){
             for (int i = 0; i < tasksStorage.size(); i++) {
-                task t = tasksStorage.get(i);
+                Task t = tasksStorage.get(i);
                 System.out.print(i + 1 + " " + t.toString() + System.lineSeparator());
             }
         }
 
          else{
             for (int i = 0; i < tasksStorage.size(); i++) {
-                task t = tasksStorage.get(i);
+                Task t = tasksStorage.get(i);
                 System.out.print(i + 1 + " " + t.toString() + System.lineSeparator());
             }
         }
@@ -110,7 +110,7 @@ public class task {
         }
 
         //https://stackoverflow.com/questions/14534767/how-to-append-a-newline-to-stringbuilder
-        for (task t : tasksStorage) {
+        for (Task t : tasksStorage) {
             sb.append(t.convertToCommand());
             sb.append(System.lineSeparator());
         }
@@ -136,7 +136,7 @@ public class task {
      * @param task checks if selected task is marked or not
      * @return String as feedback if selected task isDone value is true/false
      */
-    public String taskIsDone(task task){
+    public String taskIsDone(Task task){
         return task.isDone ? "done!" : "undone!";
     }
 
@@ -145,7 +145,7 @@ public class task {
      * @param taskIndex Index used to locate the correct task before flipping its boolean value
      */
     public void markTaskIndex(int taskIndex){
-            task task = tasksStorage.get(taskIndex);
+            Task task = tasksStorage.get(taskIndex);
             task.isDone = !task.isDone;
     }
 
@@ -154,7 +154,7 @@ public class task {
      * @param taskIndex Index used to locate the correct task
      * @return task object based on user specified index
      */
-    public task retrieveTaskDetails(int taskIndex){
+    public Task retrieveTaskDetails(int taskIndex){
         return tasksStorage.get(taskIndex);
     }
 

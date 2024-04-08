@@ -1,18 +1,18 @@
 package logic;
 
-import tasklist.task;
+import tasklist.Task;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 import java.util.Stack;
 import java.time.LocalDateTime;
 
-public class parser {
+public class Parser {
 
     Stack<String> undo = new Stack<>();
 
     /** Creates a default constructor */
-    public parser(){
+    public Parser(){
     }
 
     public static String getDateTimeNow(){
@@ -35,7 +35,7 @@ public class parser {
     }
 
     /** Checks if task number is a positive number & smaller than task size */
-    public boolean taskNumberIsValid(int taskNo, task tasks) {
+    public boolean taskNumberIsValid(int taskNo, Task tasks) {
         return taskNo <= tasks.getTaskSize() && taskNo > 0;
     }
 

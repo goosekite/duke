@@ -9,16 +9,16 @@ import java.util.Queue;
 import java.util.Scanner;
 
 import UI.JenkinsUI;
-import exception.dukeexception;
-import logic.parser;
+import exception.DukeException;
+import logic.Parser;
 
-public class storage {
+public class Storage {
 
     protected final String FILE_PATH_FOR_TASK_LIST = "src/main/data/duke.txt";
     protected final String FILE_PATH_FOR_DATETIME = "src/main/data/lastAccessed.txt";
 
     /** Creates a constructor and sets a default file path */
-    public storage() {
+    public Storage() {
         ensureTaskListFileExists();
         ensureTimeStampFileExists();
     }
@@ -109,7 +109,7 @@ public class storage {
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e); //Should not trigger because default file path is set
         } catch (IOException e) {
-            dukeexception.getError(dukeexception.filePathDoesNotExist());
+            DukeException.getError(DukeException.filePathDoesNotExist());
         }
 
     }
@@ -118,7 +118,7 @@ public class storage {
         File file = new File(FILE_PATH_FOR_DATETIME); // Create a File object representing the file
 
         // Get time now
-        String formattedDateTime = parser.getDateTimeNow();
+        String formattedDateTime = Parser.getDateTimeNow();
 
         //Read & inform user last access date
         try {
@@ -144,7 +144,7 @@ public class storage {
         File file = new File(FILE_PATH_FOR_DATETIME);
 
         // Get time now
-        String formattedDateTime = parser.getDateTimeNow();
+        String formattedDateTime = Parser.getDateTimeNow();
 
         try {
             if (file.createNewFile()) {
@@ -161,7 +161,7 @@ public class storage {
             writer.close();
 
         } catch (IOException e) {
-            dukeexception.getError(dukeexception.filePathDoesNotExist());
+            DukeException.getError(DukeException.filePathDoesNotExist());
         }
     }
 }

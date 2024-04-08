@@ -1,29 +1,29 @@
-import logic.parser;
-import storage.storage;
+import logic.Parser;
+import storage.Storage;
 import tasklist.*;
 import UI.JenkinsUI;
-import logic.botstatus;
-import exception.dukeexception;
+import logic.BotStatus;
+import exception.DukeException;
 
 import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class duke {
+public class Duke {
 
-    private static task tasks;
+    private static Task tasks;
     private final JenkinsUI ui;
-    private final logic.parser parser;
-    private final storage storage;
-    private final botstatus botStatus;
+    private final Parser parser;
+    private final Storage storage;
+    private final BotStatus botStatus;
 
 
-    public duke(){
-        tasks = new task();
+    public Duke(){
+        tasks = new Task();
         ui = new JenkinsUI();
-        parser = new parser();
-        botStatus = new botstatus();
-        storage = new storage();
+        parser = new Parser();
+        botStatus = new BotStatus();
+        storage = new Storage();
 
     }
 
@@ -92,7 +92,7 @@ public class duke {
                 validTaskNumber = taskNumber;
             }
                 int index = validTaskNumber - 1;
-                task t = tasks.retrieveTaskDetails(index);
+                Task t = tasks.retrieveTaskDetails(index);
                 tasks.markTaskIndex(index);
                 ui.displayMarkedTask(taskNumber, t.taskIsDone(t), t.getStatusIcon(), t.getTaskDescription());
 
@@ -100,13 +100,13 @@ public class duke {
             System.out.println("mark " + keyword[1]);
         }
         catch (NumberFormatException e){
-            dukeexception.getError(dukeexception.expectIntegerButInputIsString("mark"));
+            DukeException.getError(DukeException.expectIntegerButInputIsString("mark"));
         }
         catch (ArrayIndexOutOfBoundsException e){
-            dukeexception.getError(dukeexception.arrayOutOfBounds("mark"));
+            DukeException.getError(DukeException.arrayOutOfBounds("mark"));
         }
         catch (IndexOutOfBoundsException e){
-            dukeexception.getError(dukeexception.indexOutOfBounds("mark"));
+            DukeException.getError(DukeException.indexOutOfBounds("mark"));
         }
     }
 
@@ -133,13 +133,13 @@ public class duke {
             ui.displayDeletedTask(s);
         }
         catch (NumberFormatException e){
-            dukeexception.getError(dukeexception.expectIntegerButInputIsString("delete"));
+            DukeException.getError(DukeException.expectIntegerButInputIsString("delete"));
         }
         catch (ArrayIndexOutOfBoundsException e){
-            dukeexception.getError(dukeexception.arrayOutOfBounds("delete"));
+            DukeException.getError(DukeException.arrayOutOfBounds("delete"));
         }
         catch (IndexOutOfBoundsException e){
-            dukeexception.getError(dukeexception.indexOutOfBounds("delete"));
+            DukeException.getError(DukeException.indexOutOfBounds("delete"));
         }
     }
 
@@ -158,7 +158,7 @@ public class duke {
             String eventDescription = matcher.group(1);
             String deadline = matcher.group(2);
 
-            tasklist.deadline d = new deadline(eventDescription, deadline);
+            Deadline d = new Deadline(eventDescription, deadline);
             tasks.createTask(d);
 
             ui.userAddedDeadline(userInput);
@@ -186,7 +186,7 @@ public class duke {
             String start = matcher.group(2);
             String end = matcher.group(3);
 
-            event event = new event(eventDescription, start, end);
+            Event event = new Event(eventDescription, start, end);
             tasks.createTask(event);
             ui.userAddedEvent(userInput);
             parser.addToUndoStack("delete " + tasks.getTaskSize());
@@ -204,7 +204,7 @@ public class duke {
      * @param userInput is considered a todo Task because it survived all guard clauses.
      */
     public void keywordTask(String userInput){
-        todo todo = new todo(userInput);
+        ToDo todo = new ToDo(userInput);
         tasks.createTask(todo);
         ui.userAddedTask(userInput);
         parser.addToUndoStack("delete " + tasks.getTaskSize());
@@ -341,6 +341,6 @@ public class duke {
     }
 
     public static void main(String[] args) {
-        new duke().run();
+        new Duke().run();
     }
 }

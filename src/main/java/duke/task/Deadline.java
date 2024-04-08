@@ -1,13 +1,13 @@
-package tasklist;
+package duke.tasklist;
 
 
-public class deadline extends task {
+public class Deadline extends Task {
     protected String by;
 
-    public deadline() {
+    public Deadline() {
     }
 
-    public deadline(String description, String by) {
+    public Deadline(String description, String by) {
         super(description);
         this.by = by;
     }

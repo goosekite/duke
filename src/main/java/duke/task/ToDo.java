@@ -1,7 +1,7 @@
-package tasklist;
+package duke.tasklist;
 
-public class todo extends task {
-    public todo(String description) {
+public class ToDo extends Task {
+    public ToDo(String description) {
         super(description);
     }
 
