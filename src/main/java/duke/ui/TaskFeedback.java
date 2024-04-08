@@ -26,6 +26,10 @@ public class TaskFeedback {
         System.out.println("Searching for task " + taskNumber + "...");
     }
 
+    public static void searchByDate(){
+        System.out.print("Keyword by found! ");
+    }
+
     public static void displayMarkedTask(int index, String doneStatus, String taskIcon, String taskDescription){
         System.out.println("Task " + index + " marked as " + doneStatus);
         System.out.print(index + ".");

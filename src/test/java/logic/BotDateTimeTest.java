@@ -8,15 +8,10 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BotDateTimeTest {
-    LocalDateTime dateTime = LocalDateTime.of(1994,12, 6,18,0);
-//    LocalDate dateOnly = LocalDate.parse("1994-12-01");
     LocalDate[] dates = {
-//            LocalDate.parse("07 12 1994"),
             LocalDate.parse("1994-12-02"),
     };
-//    public void TestConvertLocalDateTimeToString(){
-//        assertEquals("6 Dec 1994", BotDateTime.convertStringToLocalDateTime());
-//    }
+    LocalDateTime dateTime = LocalDateTime.of(1994,12, 6,18,0);
 
     @Test
     public void TestDateOnly() {
@@ -25,7 +20,12 @@ public class BotDateTimeTest {
     }
 
     @Test
+    public void TestGetStringFromDateTime() {
+        assertEquals("06 December 1994 06:00PM", BotDateTime.getStringFromLocalDateTime(dateTime));
+    }
+
+    @Test
     public void TestConvertStringToLocalDateTime() {
-        assertEquals("06 December 1994, 06:00PM", BotDateTime.convertStringToLocalDateTime(dateTime));
+        assertEquals("06 December 1994 1800", BotDateTime.getStringFromLocalDateTime(dateTime));
     }
 }

@@ -10,7 +10,6 @@ import duke.ui.JenkinsUI;
 import duke.logic.BotPatience;
 import duke.exception.DukeException;
 import duke.ui.PatienceFeedback;
-import duke.ui.SuggestFeedback;
 
 import java.util.Queue;
 import java.util.regex.Matcher;
@@ -152,29 +151,18 @@ public class Duke {
 
     /**
      * Create and store a "Deadline" task object
-
      * Stores Inverted command to Undo Stack. Create -> Delete
      * @param userInput is an event when keywords "from " and "to " detected
      */
     public void keywordBy(String userInput){
-        Pattern pattern = Pattern.compile("(.+) by (.+)");
-        Matcher matcher = pattern.matcher(userInput);
 
-        if (matcher.find()) {
+        Deadline deadline = duke.logic.Parser.keywordBy(userInput);
 
-            String eventDescriptionString = matcher.group(1);
-            String deadlineString = matcher.group(2);
+        tasks.createTask(deadline);
+        duke.ui.TaskFeedback.userAddedDeadline(userInput);
+        BotUndo.addToStack("delete " + tasks.getTaskSize());
 
-            Deadline deadline = new Deadline(eventDescriptionString, deadlineString);
-            tasks.createTask(deadline);
 
-            duke.ui.TaskFeedback.userAddedDeadline(userInput);
-            BotUndo.addToStack("delete " + tasks.getTaskSize());
-        }
-
-        else {
-            SuggestFeedback.getErrorHelpBy();
-        }
     }
 
     /**
@@ -199,7 +187,7 @@ public class Duke {
         }
 
         else {
-            SuggestFeedback.getErrorHelpFromTo();
+            duke.ui.SuggestFeedback.helpUsingFromToKeyword();
         }
     }
 

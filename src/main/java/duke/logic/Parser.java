@@ -1,11 +1,11 @@
 package duke.logic;
 
+import duke.task.Deadline;
 import duke.task.Task;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
-import java.util.Stack;
-import java.time.LocalDateTime;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Parser {
 
@@ -32,5 +32,27 @@ public class Parser {
     }
 
 
+    public static Deadline keywordBy(String userInput) {
+        Pattern pattern = Pattern.compile("(.+) by (.+)");
+        Matcher matcher = pattern.matcher(userInput);
+
+        duke.ui.TaskFeedback.searchByDate();
+        if (matcher.find()) {
+            String eventDescriptionString = matcher.group(1);
+            String deadlineString = matcher.group(2);
+
+            if (duke.logic.BotDateTime.stringIsValidDateFormat(deadlineString)){
+                deadlineString = duke.logic.BotDateTime.magic(deadlineString);
+            }
+
+            return new Deadline(eventDescriptionString,deadlineString);
+        }
+
+        else {
+            duke.ui.SuggestFeedback.helpUsingByKeyword();
+            return null;
+        }
+
+    }
 
 }
