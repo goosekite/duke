@@ -1,4 +1,4 @@
-package storage;
+package duke.storage;
 
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -8,9 +8,9 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
 
-import UI.JenkinsUI;
-import exception.DukeException;
-import logic.Parser;
+import duke.ui.JenkinsUI;
+import duke.exception.DukeException;
+import duke.logic.Parser;
 
 public class Storage {
 
@@ -62,9 +62,9 @@ public class Storage {
     }
 
     /**
-     * Creates a queue to and search for storage location
+     * Creates a queue to and search for duke.storage location
      * Reads file using scanner and inserts every line into Queue
-     * @return Queue with userInput so Duke can reconstruct task list
+     * @return Queue with userInput so duke.Duke can reconstruct task list
      */
     public Queue<String> loadData(){
         Queue<String> queue = new LinkedList<>();
@@ -132,7 +132,7 @@ public class Storage {
 
             while (sc.hasNextLine()) {
                 String loadedTimeStamp = sc.nextLine(); // Read a line and store it in a string
-                UI.JenkinsUI.loadDateTimeSuccessfully(loadedTimeStamp); // Informs user load Date Time was successful
+                duke.ui.JenkinsUI.loadDateTimeSuccessfully(loadedTimeStamp); // Informs user load Date Time was successful
             }
 
         } catch (IOException e) {
@@ -157,8 +157,9 @@ public class Storage {
             //Overwrite file with DateTime
             writer.write(formattedDateTime);
 
-            JenkinsUI.savedTimeStampSuccessfully(formattedDateTime);
             writer.close();
+
+            JenkinsUI.savedTimeStampSuccessfully(formattedDateTime);
 
         } catch (IOException e) {
             DukeException.getError(DukeException.filePathDoesNotExist());

@@ -1,6 +1,6 @@
-package logic;
+package duke.logic;
 
-import tasklist.Task;
+import duke.task.Task;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
@@ -23,7 +23,7 @@ public class Parser {
     }
 
     /** tidies user input */
-    public String tidyUserInput(){
+    public static String tidyUserInput(){
         Scanner sc = new Scanner(System.in);
         String userInput = sc.nextLine();
         return userInput.trim();
@@ -51,7 +51,6 @@ public class Parser {
         if (undo.isEmpty()){
             System.out.println("Stack is empty!");
         }
-
         else {
             undo.pop();
         }

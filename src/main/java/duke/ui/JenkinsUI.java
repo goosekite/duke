@@ -1,15 +1,12 @@
-package UI;
+package duke.ui;
+
+import duke.logic.BotName;
 
 import java.io.File;
-import java.util.Scanner;
 
 public class JenkinsUI {
-    protected String chatBotName = "Jenkins";
 
-
-    protected String getChatBotName(){
-        return chatBotName;
-    }
+    protected static String botName = BotName.getChatBotName();
 
     //Source: https://patorjk.com/software/taag/#p=display&f=Ogre&t=Jenkins
     public void printLogo(){
@@ -28,24 +25,21 @@ public class JenkinsUI {
         System.out.println("____________________________________________________________");
     }
 
-    //Level 0-1 Rename
-    public void setChatBotName(String userInput){
-        chatBotName = userInput;
-    }
-
     public void chatBotSaysHello(){
+        botName = BotName.getChatBotName();
         printLogo();
-        System.out.println(getChatBotName() + ": Hello! you may call me " + getChatBotName() + ". I remember it, so you don't have to!");
+        System.out.println(botName + ": Hello! you may call me " + botName + ". I remember it, so you don't have to!");
         System.out.println("What can I do for you?");
     }
 
     public void chatBotSaysBye(){
-        System.out.print(getChatBotName() + ": GoodBye, Stay Safe. I hope to see you again soon!\n");
+        botName = BotName.getChatBotName();
+        System.out.print(botName + ": GoodBye, Stay Safe. I hope to see you again soon!\n");
     }
 
-
     public void getHelp(){
-        System.out.println(getChatBotName() + ": Certainly! Here are all commands that I can understand:");
+        botName = BotName.getChatBotName();
+        System.out.println(botName + ": Certainly! Here are all commands that I can understand:");
         System.out.println("help or {.} - prints this help list to help recall");
         System.out.println("bye - exits program --- tap {ENTER} 3 times)");
         System.out.println("tap {ENTER} 3 times to exit program quickly");
@@ -101,15 +95,15 @@ public class JenkinsUI {
         }
     }
 
-    public void changeChatBotName(){
-        System.out.println(getChatBotName() + ": Sure! Please key in my new name");
-        Scanner sc = new Scanner(System.in); //open scanner!
-        String userInput = sc.nextLine();
+    public void changingBotName(){
+        botName = BotName.getChatBotName();
+        System.out.println(botName + ": Sure! Please key in my new name");
 
-        String name = userInput.trim();
-        setChatBotName(name);
+    }
 
-        System.out.println(getChatBotName() + ": Right away!");
+    public void changeBotNameSuccess(){
+        botName = BotName.getChatBotName();
+        System.out.println(botName + ": Right away!");
     }
 
     public void userAddedTask(String taskDescription){
@@ -166,7 +160,8 @@ public class JenkinsUI {
     }
 
     public static void savedTimeStampSuccessfully(String dateTime) {
-        System.out.println("I've saved timestamp on " + dateTime);
+        botName = BotName.getChatBotName();
+        System.out.println(botName + ": I've committed everything to memory on " + dateTime);
     }
 
     public static void creatingTimeStamp() {

@@ -1,4 +1,4 @@
-package exception;
+package duke.exception;
 
 
 /**
@@ -6,7 +6,7 @@ package exception;
  */
 public class DukeException extends Exception{
 
-    /** Detects an exception has been raised and override it */
+    /** Detects an duke.exception has been raised and override it */
     public DukeException(String message) {
         super(message);
     }
@@ -42,7 +42,7 @@ public class DukeException extends Exception{
         return new DukeException("There is no such task to " + keyword);
     }
 
-    /** Activates when Duke fails to find path for accessing database */
+    /** Activates when we cannot find path to access database */
     public static DukeException filePathDoesNotExist(){
         return new DukeException("Sorry, the file path is not initialised. Storage loading failed. Creating empty list.. ");
     }

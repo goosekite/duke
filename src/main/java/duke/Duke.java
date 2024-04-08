@@ -1,9 +1,12 @@
-import logic.Parser;
-import storage.Storage;
-import tasklist.*;
-import UI.JenkinsUI;
-import logic.BotStatus;
-import exception.DukeException;
+package duke;
+
+import duke.logic.BotName;
+import duke.logic.Parser;
+import duke.storage.Storage;
+import duke.task.*;
+import duke.ui.JenkinsUI;
+import duke.logic.BotStatus;
+import duke.exception.DukeException;
 
 import java.util.Queue;
 import java.util.regex.Matcher;
@@ -145,7 +148,7 @@ public class Duke {
 
     /**
      * Create and store a "Deadline" task object
-     * UI Informs user accordingly
+
      * Stores Inverted command to Undo Stack. Create -> Delete
      * @param userInput is an event when keywords "from " and "to " detected
      */
@@ -155,11 +158,11 @@ public class Duke {
 
         if (matcher.find()) {
 
-            String eventDescription = matcher.group(1);
-            String deadline = matcher.group(2);
+            String eventDescriptionString = matcher.group(1);
+            String deadlineString = matcher.group(2);
 
-            Deadline d = new Deadline(eventDescription, deadline);
-            tasks.createTask(d);
+            Deadline deadline = new Deadline(eventDescriptionString, deadlineString);
+            tasks.createTask(deadline);
 
             ui.userAddedDeadline(userInput);
             parser.addToUndoStack("delete " + tasks.getTaskSize());
@@ -172,7 +175,6 @@ public class Duke {
 
     /**
      * Create and store an "Event" task object
-     * UI Informs user accordingly
      * Stores Inverted command to Undo Stack. Create -> Delete
      * @param userInput is an event when keywords "from " and "to " detected
      */
@@ -199,7 +201,6 @@ public class Duke {
 
     /**
      * Create and store a "To do" task object.
-     * UI Informs user accordingly.
      * Stores Inverted command to Undo Stack. Create -> Delete.
      * @param userInput is considered a todo Task because it survived all guard clauses.
      */
@@ -267,7 +268,9 @@ public class Duke {
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("change bot name")){
-            ui.changeChatBotName();
+            ui.changingBotName();
+            BotName.changeBotName(duke.logic.Parser.tidyUserInput());
+            ui.changeBotNameSuccess();
             botStatus.resetImpatience();
             return true;
         }

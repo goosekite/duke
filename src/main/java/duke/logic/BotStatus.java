@@ -1,10 +1,10 @@
-package logic;
+package duke.logic;
 
 /**
  * Determines if bot continues to listen or shut down
  * Bot will be offline if it loses all patience or user switch it off manually
  * Patience is lost when user inputs nothing, but resets when user inputs anything
- * See Duke.Duke -> botIsAlive();
+ * See duke.Duke.duke.Duke -> botIsAlive();
  */
 public class BotStatus {
 
@@ -36,7 +36,7 @@ public class BotStatus {
         blankUserInputCount = 0;
     }
 
-    /** Switch bot to offline so Duke's do while loop will fail */
+    /** Switch bot to offline so duke.Duke's do while loop will fail */
     public void quitProgram(){
         isOnline = false;
     }
