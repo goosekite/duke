@@ -5,9 +5,12 @@ import duke.logic.BotUndo;
 import duke.logic.Parser;
 import duke.storage.Storage;
 import duke.task.*;
+import duke.ui.HelloAndGoodbye;
 import duke.ui.JenkinsUI;
-import duke.logic.BotStatus;
+import duke.logic.BotPatience;
 import duke.exception.DukeException;
+import duke.ui.PatienceFeedback;
+import duke.ui.SuggestFeedback;
 
 import java.util.Queue;
 import java.util.regex.Matcher;
@@ -19,14 +22,14 @@ public class Duke {
     private final JenkinsUI ui;
     private final Parser parser;
     private final Storage storage;
-    private final BotStatus botStatus;
+    private final BotPatience botPatience;
 
 
     public Duke(){
         tasks = new Task();
         ui = new JenkinsUI();
         parser = new Parser();
-        botStatus = new BotStatus();
+        botPatience = new BotPatience();
         storage = new Storage();
 
     }
@@ -49,10 +52,11 @@ public class Duke {
      */
     public void run() {
         createTaskListFromStorage();
-        ui.chatBotSaysHello();
+        duke.ui.HelloAndGoodbye.chatBotSaysHello();
         tasks.printTaskList();
 
         do{
+            duke.ui.JenkinsUI.drawLine();
             botListensForInput();
         }
         while (botIsAlive());
@@ -69,12 +73,12 @@ public class Duke {
         storage.saveDataToStorage(s); //Saves tasks to Storage
         storage.saveDateTimeStamp(); //Saves time stamp;
 
-        botStatus.quitProgram(); //Change bot status to offline
-        ui.chatBotSaysBye(); //Bot says bye
+        botPatience.quitProgram(); //Change bot status to offline
+        HelloAndGoodbye.chatBotSaysBye(); //Bot says bye
     }
 
     public boolean botIsAlive(){
-        return (botStatus.chatBotIsOnline() && botStatus.isBotPatient());
+        return (botPatience.chatBotIsOnline() && botPatience.isBotPatient());
     }
 
     /**
@@ -89,7 +93,7 @@ public class Duke {
 
         try {
             int taskNumber = parser.getTaskNumber(keyword[1]);
-            ui.searchTaskToMark(taskNumber);
+            duke.ui.TaskFeedback.searchTaskToMark(taskNumber);
 
             if (parser.taskNumberIsValid(taskNumber, tasks)) {
                 validTaskNumber = taskNumber;
@@ -97,7 +101,7 @@ public class Duke {
                 int index = validTaskNumber - 1;
                 Task t = tasks.retrieveTaskDetails(index);
                 tasks.markTaskIndex(index);
-                ui.displayMarkedTask(taskNumber, t.taskIsDone(t), t.getStatusIcon(), t.getTaskDescription());
+                duke.ui.TaskFeedback.displayMarkedTask(taskNumber, t.taskIsDone(t), t.getStatusIcon(), t.getTaskDescription());
 
             BotUndo.addToStack("mark " + keyword[1]); //Undo remembers how to remark task
             System.out.println("mark " + keyword[1]);
@@ -133,7 +137,7 @@ public class Duke {
             BotUndo.addToStack(s); //Undo remembers this
 
             tasks.deleteTask(validTaskNumber);
-            ui.displayDeletedTask(s);
+            duke.ui.TaskFeedback.displayDeletedTask(s);
         }
         catch (NumberFormatException e){
             DukeException.getError(DukeException.expectIntegerButInputIsString("delete"));
@@ -164,12 +168,12 @@ public class Duke {
             Deadline deadline = new Deadline(eventDescriptionString, deadlineString);
             tasks.createTask(deadline);
 
-            ui.userAddedDeadline(userInput);
+            duke.ui.TaskFeedback.userAddedDeadline(userInput);
             BotUndo.addToStack("delete " + tasks.getTaskSize());
         }
 
         else {
-            ui.getErrorHelpBy();
+            SuggestFeedback.getErrorHelpBy();
         }
     }
 
@@ -190,12 +194,12 @@ public class Duke {
 
             Event event = new Event(eventDescription, start, end);
             tasks.createTask(event);
-            ui.userAddedEvent(userInput);
+            duke.ui.TaskFeedback.userAddedEvent(userInput);
             BotUndo.addToStack("delete " + tasks.getTaskSize());
         }
 
         else {
-            ui.getErrorHelpFromTo();
+            SuggestFeedback.getErrorHelpFromTo();
         }
     }
 
@@ -207,7 +211,7 @@ public class Duke {
     public void keywordTask(String userInput){
         ToDo todo = new ToDo(userInput);
         tasks.createTask(todo);
-        ui.userAddedTask(userInput);
+        duke.ui.TaskFeedback.userAddedTask(userInput);
         BotUndo.addToStack("delete " + tasks.getTaskSize());
     }
 
@@ -217,11 +221,11 @@ public class Duke {
     public void handleList(){
         int taskSize = tasks.getTaskSize();
 
-        ui.preTaskSizeFeedback(taskSize);
+        duke.ui.TaskFeedback.preTaskSizeFeedback(taskSize);
         tasks.printTaskList();
-        ui.postTaskSizeFeedback(taskSize);
+        duke.ui.TaskFeedback.postTaskSizeFeedback(taskSize);
 
-        botStatus.resetImpatience();
+        botPatience.resetImpatience();
     }
 
     /**
@@ -230,7 +234,7 @@ public class Duke {
      * Pop command from Stack after use
      */
     public void handleUndo(){
-        ui.acknowledgeUndoCommand();
+        duke.ui.UndoFeedback.acknowledgeUndoCommand();
         String s = BotUndo.peekStack();
         scanAdvanceKeywords(s); //Skips isGeneralKeyword() for efficiency
         BotUndo.removeFromStack();
@@ -245,39 +249,39 @@ public class Duke {
     public boolean isGeneralKeyword(String trimmedUserInput){
 
         if (trimmedUserInput.isBlank() || trimmedUserInput.isEmpty()) {
-            botStatus.botBecomesImpatient();
-            ui.patienceFeedback(botStatus.botPatienceMeter());
+            botPatience.botBecomesImpatient();
+            PatienceFeedback.soundOffPatienceLevel(botPatience.botPatienceMeter());
             return true;
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("bye") || trimmedUserInput.equalsIgnoreCase("quit")){
-            botStatus.quitProgram();
+            botPatience.quitProgram();
             return true;
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("list")){
             handleList();
-            botStatus.resetImpatience();
+            botPatience.resetImpatience();
             return true;
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("help") || trimmedUserInput.equalsIgnoreCase("faq")){
             ui.getHelp();
-            botStatus.resetImpatience();
+            botPatience.resetImpatience();
             return true;
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("change bot name")){
-            ui.changingBotName();
+            ui.acknowledgeChangeBotNameIntent();
             BotName.changeBotName(duke.logic.Parser.tidyUserInput());
             ui.changeBotNameSuccess();
-            botStatus.resetImpatience();
+            botPatience.resetImpatience();
             return true;
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("undo")){
             handleUndo();
-            botStatus.resetImpatience();
+            botPatience.resetImpatience();
             return true;
         }
         return false; //Remembers user command is not found in general stack
@@ -289,7 +293,7 @@ public class Duke {
      * Undo records userInput in Stack
      */
     public void scanAdvanceKeywords(String userInput)  {
-        botStatus.resetImpatience();
+        botPatience.resetImpatience();
         boolean isDeadlineEvent = false, isMarkOrDelete = false;
 
         String[] keyword = userInput.split(" ", 2);
@@ -335,7 +339,6 @@ public class Duke {
      * Advance: Bot functions as intended
      */
     public void botListensForInput() {
-        ui.drawLine();
         String userInput = Parser.tidyUserInput();
 
         if (!isGeneralKeyword(userInput)){

@@ -33,9 +33,9 @@ public class Storage {
         try {
             File taskListPathFile = new File(FILE_PATH_FOR_TASK_LIST);
             if (taskListPathFile.createNewFile()) {
-                JenkinsUI.noFileFound(taskListPathFile, context);
+                duke.ui.StorageFeedback.noFileFound(taskListPathFile, context);
             } else {
-                JenkinsUI.foundFileToLoad(context);
+                duke.ui.StorageFeedback.foundFileToLoad(context);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -55,7 +55,7 @@ public class Storage {
             if (timeStampPathFile.createNewFile()) {
                 System.out.println("Time Stamp File created: " + timeStampPathFile.getName());
             } else {
-                JenkinsUI.foundFileToLoad(context);
+                duke.ui.StorageFeedback.foundFileToLoad(context);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -124,7 +124,7 @@ public class Storage {
         try {
             if (file.createNewFile()) {
                 //Saved created
-                JenkinsUI.cantFindTimeStampSoIWillRecreate(formattedDateTime);
+                duke.ui.DateTimeFeedback.cantFindTimeStampSoIWillRecreate(formattedDateTime);
                 saveDateTimeStamp();
             }
 
@@ -132,7 +132,7 @@ public class Storage {
 
             while (sc.hasNextLine()) {
                 String loadedTimeStamp = sc.nextLine(); // Read a line and store it in a string
-                duke.ui.JenkinsUI.loadDateTimeSuccessfully(loadedTimeStamp); // Informs user load Date Time was successful
+                duke.ui.StorageFeedback.loadDateTimeSuccessfully(loadedTimeStamp); // Informs user load Date Time was successful
             }
 
         } catch (IOException e) {
@@ -148,7 +148,7 @@ public class Storage {
 
         try {
             if (file.createNewFile()) {
-                JenkinsUI.creatingTimeStamp();
+                duke.ui.DateTimeFeedback.creatingTimeStamp();
             }
 
             // let writer know file location
@@ -159,7 +159,7 @@ public class Storage {
 
             writer.close();
 
-            JenkinsUI.savedTimeStampSuccessfully(formattedDateTime);
+            duke.ui.StorageFeedback.savedTimeStampSuccessfully(formattedDateTime);
 
         } catch (IOException e) {
             DukeException.getError(DukeException.filePathDoesNotExist());

@@ -9,10 +9,9 @@ public class BotDateTime {
         return convertStringToLocalDateTime(LocalDateTime.now());
     }
 
-
     public static String convertStringToLocalDateTime(LocalDateTime dateTime){
         try {
-            DateTimeFormatter asLongDate = DateTimeFormatter.ofPattern("dd MMMM yyyy, ha");
+            DateTimeFormatter asLongDate = DateTimeFormatter.ofPattern("dd MMMM yyyy, hh:mma");
             return dateTime.format(asLongDate);
         } catch (Exception e) {
             throw new RuntimeException(e);

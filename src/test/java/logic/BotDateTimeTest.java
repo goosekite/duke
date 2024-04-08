@@ -26,6 +26,6 @@ public class BotDateTimeTest {
 
     @Test
     public void TestConvertStringToLocalDateTime() {
-        assertEquals("06 December 1994, 6PM", BotDateTime.convertStringToLocalDateTime(dateTime));
+        assertEquals("06 December 1994, 06:00PM", BotDateTime.convertStringToLocalDateTime(dateTime));
     }
 }
