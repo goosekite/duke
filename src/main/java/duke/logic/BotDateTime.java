@@ -8,6 +8,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class BotDateTime {
+
+    static final String EXPECTED_DATE_TIME_FORMAT  = "yyyy-MM-dd HHmm";
     public static String now(){
         return getStringFromLocalDateTime(LocalDateTime.now());
     }
@@ -19,7 +21,7 @@ public class BotDateTime {
      */
     public static String getStringFromLocalDateTime(LocalDateTime dateTime){
         try {
-            DateTimeFormatter asLongDate = DateTimeFormatter.ofPattern("dd MMMM yyyy hh:mma");
+            DateTimeFormatter asLongDate = DateTimeFormatter.ofPattern(EXPECTED_DATE_TIME_FORMAT);
             return dateTime.format(asLongDate);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -32,7 +34,7 @@ public class BotDateTime {
      * @return
      */
     public static boolean stringIsValidDateFormat(String dateTime) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MM yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(EXPECTED_DATE_TIME_FORMAT);
 
         try {
             // Parse the user input into a Date object
@@ -48,8 +50,8 @@ public class BotDateTime {
     /**
      * This string becomes date, convert it, become string again
      */
-    public static String magic(String dateTime) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MM yyyy");
+    public static String saveDateTime(String dateTime) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HHmm");
 
 
         try {

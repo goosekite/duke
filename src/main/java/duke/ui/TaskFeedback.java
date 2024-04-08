@@ -30,6 +30,10 @@ public class TaskFeedback {
         System.out.print("Keyword by found! ");
     }
 
+    public static void searchFromToDate(){
+        System.out.print("Keyword Event..From..To.. found! ");
+    }
+
     public static void displayMarkedTask(int index, String doneStatus, String taskIcon, String taskDescription){
         System.out.println("Task " + index + " marked as " + doneStatus);
         System.out.print(index + ".");

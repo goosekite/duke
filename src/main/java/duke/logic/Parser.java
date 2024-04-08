@@ -1,6 +1,7 @@
 package duke.logic;
 
 import duke.task.Deadline;
+import duke.task.Event;
 import duke.task.Task;
 
 import java.util.Scanner;
@@ -42,7 +43,7 @@ public class Parser {
             String deadlineString = matcher.group(2);
 
             if (duke.logic.BotDateTime.stringIsValidDateFormat(deadlineString)){
-                deadlineString = duke.logic.BotDateTime.magic(deadlineString);
+                deadlineString = duke.logic.BotDateTime.saveDateTime(deadlineString);
             }
 
             return new Deadline(eventDescriptionString,deadlineString);
@@ -52,7 +53,41 @@ public class Parser {
             duke.ui.SuggestFeedback.helpUsingByKeyword();
             return null;
         }
+    }
+
+    public static Event keywordFromTo(String userInput) {
+        Pattern pattern = Pattern.compile("(.+) from (.+) to (.+)");
+        Matcher matcher = pattern.matcher(userInput);
+
+        duke.ui.TaskFeedback.searchFromToDate();
+
+        if (matcher.find()) {
+
+            String eventDescription = matcher.group(1);
+            String start = matcher.group(2);
+            String end = matcher.group(3);
+
+            if (duke.logic.BotDateTime.stringIsValidDateFormat(start) && duke.logic.BotDateTime.stringIsValidDateFormat(end)) {
+                start = duke.logic.BotDateTime.saveDateTime(start);
+                end = duke.logic.BotDateTime.saveDateTime(end);
+            }
+
+            return new Event(eventDescription, start, end);
+        }
+            else {
+                duke.ui.SuggestFeedback.helpUsingFromToKeyword();
+                return null;
+            }
+
+
+//
+//            Event event = new Event(eventDescription, start, end);
+//            tasks.createTask(event);
+//            duke.ui.TaskFeedback.userAddedEvent(userInput);
+//            BotUndo.addToStack("delete " + tasks.getTaskSize());
+//        }
 
     }
+
 
 }

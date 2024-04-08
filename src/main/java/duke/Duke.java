@@ -12,8 +12,7 @@ import duke.exception.DukeException;
 import duke.ui.PatienceFeedback;
 
 import java.util.Queue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 public class Duke {
 
@@ -162,7 +161,6 @@ public class Duke {
         duke.ui.TaskFeedback.userAddedDeadline(userInput);
         BotUndo.addToStack("delete " + tasks.getTaskSize());
 
-
     }
 
     /**
@@ -171,24 +169,12 @@ public class Duke {
      * @param userInput is an event when keywords "from " and "to " detected
      */
     public void keywordFromTo(String userInput){
-        Pattern pattern = Pattern.compile("(.+) from (.+) to (.+)");
-        Matcher matcher = pattern.matcher(userInput);
 
-        if (matcher.find()) {
+        Event event = duke.logic.Parser.keywordFromTo(userInput);
 
-            String eventDescription = matcher.group(1);
-            String start = matcher.group(2);
-            String end = matcher.group(3);
-
-            Event event = new Event(eventDescription, start, end);
-            tasks.createTask(event);
-            duke.ui.TaskFeedback.userAddedEvent(userInput);
-            BotUndo.addToStack("delete " + tasks.getTaskSize());
-        }
-
-        else {
-            duke.ui.SuggestFeedback.helpUsingFromToKeyword();
-        }
+        tasks.createTask(event);
+        duke.ui.TaskFeedback.userAddedEvent(userInput);
+        BotUndo.addToStack("delete " + tasks.getTaskSize());
     }
 
     /**
