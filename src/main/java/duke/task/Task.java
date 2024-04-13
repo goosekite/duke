@@ -73,13 +73,12 @@ public class Task {
         return taskSize;
     }
 
-    /** prints task list exhaustively */
+    /** prints task list exhaustively based on keyword "list" */
     public void printTaskList(){
         if (taskSize == 0){ //guard clause
             return;
         }
 
-        //1 way to improve is having an enum to store high medium low amount of task.
         if (getTaskSize() == 1){
             System.out.print(tasksStorage.get(0).toString() + System.lineSeparator());
         }
@@ -97,6 +96,28 @@ public class Task {
                 System.out.print(i + 1 + " " + t.toString() + System.lineSeparator());
             }
         }
+    }
+
+    /** prints task list exhaustively based on keyword "find x"*/
+    public int printTaskList(String keywordToFind){
+        int taskCount = -1;
+
+        if (taskSize == 0){ //guard clause
+            System.out.println("nothing found");
+            return taskCount;
+        }
+
+        taskCount = 0; //start counting from 0 after guard clause
+
+        for (int i = 0; i < tasksStorage.size(); i++) {
+            Task t = tasksStorage.get(i); //get task from taskStorage
+
+            if (t.description.contains(keywordToFind)) {
+                System.out.print(i + 1 + " " + t + System.lineSeparator());
+                taskCount++;
+            }
+        }
+        return taskCount;
     }
 
     /**

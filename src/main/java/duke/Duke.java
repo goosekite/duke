@@ -149,6 +149,18 @@ public class Duke {
     }
 
     /**
+     * Search for all tasks containing userinput keywork
+     * */
+    public void keywordFind(String[] keyword){
+
+        String s = keyword[1]; //get task description from 2nd word
+        int taskSize = tasks.printTaskList(s);
+        duke.ui.TaskFeedback.postTaskSizeFeedback(taskSize);
+
+        botPatience.resetImpatience();
+    }
+
+    /**
      * Create and store a "Deadline" task object
      * Stores Inverted command to Undo Stack. Create -> Delete
      * @param userInput is an event when keywords "from " and "to " detected
@@ -201,6 +213,8 @@ public class Duke {
         botPatience.resetImpatience();
     }
 
+
+
     /**
      * Peek Undo Stack to retrieve latest user input
      * Call the scanAdvanceKeywords() to activate command instead of botListensForInput()
@@ -212,6 +226,7 @@ public class Duke {
         scanAdvanceKeywords(s); //Skips isGeneralKeyword() for efficiency
         BotUndo.removeFromStack();
     }
+
 
     /**
      * Parse keywords to decide which command to run
@@ -257,6 +272,8 @@ public class Duke {
             botPatience.resetImpatience();
             return true;
         }
+
+
         return false; //Remembers user command is not found in general stack
     }
 
@@ -267,7 +284,7 @@ public class Duke {
      */
     public void scanAdvanceKeywords(String userInput)  {
         botPatience.resetImpatience();
-        boolean isDeadlineEvent = false, isMarkOrDelete = false;
+        boolean isDeadlineEvent = false, isMarkDeleteOrFind = false;
 
         String[] keyword = userInput.split(" ", 2);
 
@@ -276,12 +293,17 @@ public class Duke {
             case "mark":
             case "unmark":
                 markUserIndex(keyword);
-                isMarkOrDelete = true;
+                isMarkDeleteOrFind = true;
                 break;
 
             case "delete":
                 keywordDelete(keyword);
-                isMarkOrDelete = true;
+                isMarkDeleteOrFind = true;
+                break;
+
+            case "find":
+                keywordFind(keyword);
+                isMarkDeleteOrFind = true;
                 break;
         }
 
@@ -298,10 +320,10 @@ public class Duke {
         }
 
         /* Level 4-1 Task To do
-          @param isMarkOrDelete prevents user from saving keyword "mark" "delete" as Task
+          @param isMarkDeleteOrFind prevents user from saving keyword "mark" "delete" as Task
           @param isDeadlineEvent prevents bot from saving userInput 2 times: 1st as Deadline/Event. 2nd as Task
          */
-        if (!isMarkOrDelete && !isDeadlineEvent && !userInput.equals("undo") && !userInput.contains("delete")){
+        if (!isMarkDeleteOrFind && !isDeadlineEvent && !userInput.equals("undo") && !userInput.contains("delete")){
             keywordTask(userInput);
         }
     }
