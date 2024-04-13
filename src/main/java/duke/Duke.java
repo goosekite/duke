@@ -160,7 +160,6 @@ public class Duke {
         tasks.createTask(deadline);
         duke.ui.TaskFeedback.userAddedDeadline(userInput);
         BotUndo.addToStack("delete " + tasks.getTaskSize());
-
     }
 
     /**

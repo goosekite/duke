@@ -56,7 +56,7 @@ public class BotDateTime {
 
         try {
             Date date = dateFormat.parse(dateTime);
-            System.out.println(dateFormat.format(date) + " YESSS");
+            System.out.println(dateFormat.format(date) + " Well done");
             return dateFormat.format(date);
 
         } catch (ParseException e) {

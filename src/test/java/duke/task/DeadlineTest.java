@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DeadlineTest {
-    Deadline deadline = new Deadline("eat", "noon");
+    Deadline deadline = new Deadline("", "noon");
 
     @Test
     public void testCreateDeadline(){
