@@ -1,9 +1,6 @@
 package duke.storage;
 
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
@@ -15,8 +12,8 @@ import duke.exception.DukeException;
 
 public class Storage {
 
-    protected final String FILE_PATH_FOR_TASK_LIST = "src/main/data/duke.txt";
-    protected final String FILE_PATH_FOR_DATETIME = "src/main/data/lastAccessed.txt";
+    protected final String FILE_PATH_FOR_TASK_LIST = "./duke.txt";
+    protected final String FILE_PATH_FOR_DATETIME = "./lastAccessed.txt";
 
     /** Default constructor ensures Task list and time stamp file exists */
     public Storage() {
@@ -29,18 +26,20 @@ public class Storage {
      * The text file will be locked during run time
      */
     public void ensureTaskListFileExists() {
-        String context = "task list";
-        try {
+        // Use getResourceAsStream to load resource from classpath
+        try (InputStream taskListStream = getClass().getResourceAsStream(FILE_PATH_FOR_TASK_LIST)) {
             File taskListPathFile = new File(FILE_PATH_FOR_TASK_LIST);
-            if (taskListPathFile.createNewFile()) {
-                duke.ui.StorageFeedback.noFileFound(taskListPathFile, context);
-            } else {
-                duke.ui.StorageFeedback.foundFileToLoad(context);
+
+            if (taskListStream == null && taskListPathFile.createNewFile()) {
+                duke.ui.StorageFeedback.noFileFound(taskListPathFile, "task list");
+            }
+            else {
+                duke.ui.StorageFeedback.foundFileToLoad("task list");
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            // Error handling
+            duke.ui.StorageFeedback.foundFileToLoad("task list");
         }
-
     }
 
     /**
@@ -48,19 +47,21 @@ public class Storage {
      * The text file will be locked during run time
      */
     public void ensureTimeStampFileExists() {
-        String context = "time stamp";
-        try {
-            File timeStampPathFile = new File(FILE_PATH_FOR_TASK_LIST);
-
-            if (timeStampPathFile.createNewFile()) {
+        // Similar logic as ensureTaskListFileExists
+        try (InputStream dateTimeStream = getClass().getResourceAsStream(FILE_PATH_FOR_DATETIME)) {
+            File timeStampPathFile = new File(FILE_PATH_FOR_DATETIME);
+            if (dateTimeStream == null && timeStampPathFile.createNewFile()) {
                 System.out.println("Time Stamp File created: " + timeStampPathFile.getName());
-            } else {
-                duke.ui.StorageFeedback.foundFileToLoad(context);
             }
+            else{
+                duke.ui.StorageFeedback.foundFileToLoad("time stamp");
+            }
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
 
     /**
      * Read file data and records it in queue
