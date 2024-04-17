@@ -10,41 +10,46 @@ import java.util.regex.Pattern;
 
 public class Parser {
 
-    /** Creates a default constructor */
+    /** Default constructor */
     public Parser(){
     }
 
-    /** tidies user input */
+    /** Listen and tidies user input */
     public static String tidyUserInput(){
         Scanner sc = new Scanner(System.in);
         String userInput = sc.nextLine();
         return userInput.trim();
     }
 
-    /** convert task number to string from an integer input */
+    /** Convert task number to string from an integer input */
     public int getTaskNumber(String keyword){
             return Integer.parseInt(keyword);
     }
 
     /** Checks if task number is a positive number & smaller than task size */
-    public boolean taskNumberIsValid(int taskNo, Task tasks) {
+    public static boolean taskNumberIsValid(int taskNo, Task tasks) {
         return taskNo <= tasks.getTaskSize() && taskNo > 0;
     }
 
+    /**
+     * Filters validated userInput into 2 parameters to create deadline object
+     * @param userInput is made of eventDescription and dueDate
+     * @return deadline task object
+     */
     public static Deadline keywordBy(String userInput) {
         Pattern pattern = Pattern.compile("(.+) by (.+)");
         Matcher matcher = pattern.matcher(userInput);
 
         duke.ui.TaskFeedback.searchByDate();
         if (matcher.find()) {
-            String eventDescriptionString = matcher.group(1);
-            String deadlineString = matcher.group(2);
+            String eventDescription = matcher.group(1);
+            String dueDate = matcher.group(2);
 
-            if (duke.logic.BotDateTime.stringIsValidDateFormat(deadlineString)){
-                deadlineString = duke.logic.BotDateTime.saveDateTime(deadlineString);
+            if (duke.logic.BotDateTime.stringIsValidDateFormat(dueDate)){
+                dueDate = duke.logic.BotDateTime.saveDateTime(dueDate);
             }
 
-            return new Deadline(eventDescriptionString,deadlineString);
+            return new Deadline(eventDescription,dueDate);
         }
 
         else {
@@ -53,6 +58,11 @@ public class Parser {
         }
     }
 
+    /**
+     * Filters validated userInput into 3 parameters to create event object
+     * @param userInput is made of eventDescription, start and end
+     * @return event task object
+     */
     public static Event keywordFromTo(String userInput) {
         Pattern pattern = Pattern.compile("(.+) from (.+) to (.+)");
         Matcher matcher = pattern.matcher(userInput);
@@ -76,8 +86,6 @@ public class Parser {
                 duke.ui.SuggestFeedback.helpUsingFromToKeyword();
                 return null;
             }
-
     }
-
 
 }

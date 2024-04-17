@@ -2,14 +2,14 @@ package duke.task;
 
 import java.util.ArrayList;
 
-
 /** Parent Class for Deadline, Event and To do */
 public class Task {
     private ArrayList<Task> tasksStorage;
     protected String description;
     protected boolean isDone;
 
-    private static int taskSize = 0;
+    private int taskSize = 0;
+    private final byte INVALID_TASK_COUNT = -1;
 
     /** Creates an array list by calling this default constructor */
     public Task(){
@@ -99,7 +99,7 @@ public class Task {
 
     /** prints task list exhaustively based on keyword "find x"*/
     public int printTaskList(String keywordToFind){
-        int taskCount = -1;
+        int taskCount = INVALID_TASK_COUNT;
 
         if (taskSize == 0){ //guard clause
             System.out.println("nothing found");
@@ -143,7 +143,7 @@ public class Task {
 
     //Get temporary string for undo method
     public String getTaskBeforeDelete(int taskNumber){
-        return String.valueOf((tasksStorage.get(taskNumber-1)));
+        return tasksStorage.get(taskNumber-1).convertToCommand();
     }
 
     //Retrieve & Update Boolean isDone

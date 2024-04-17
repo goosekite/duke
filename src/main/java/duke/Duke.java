@@ -16,12 +16,13 @@ public class Duke {
 
     private static Task tasks;
     private final Storage STORAGE;
-    private final BotPatience BOTPATIENCE;
+    private final BotPatience BOT_PATIENCE;
+    private final int INVALID_TASK_NUMBER = -1;
 
 
     public Duke(){
         tasks = new Task();
-        BOTPATIENCE = new BotPatience();
+        BOT_PATIENCE = new BotPatience();
         STORAGE = new Storage();
     }
 
@@ -51,7 +52,7 @@ public class Duke {
         tasks.printTaskList();
 
         do{
-            duke.ui.JenkinsUI.drawLine();
+            duke.ui.ASCII.drawLine();
             botListensForInput();
         }
         while (botIsAlive());
@@ -68,13 +69,22 @@ public class Duke {
         STORAGE.saveDataToStorage(s); //Saves tasks to Storage
         STORAGE.saveDateTimeStamp(); //Saves time stamp;
 
-        BOTPATIENCE.quitProgram(); //Change bot status to offline
+        BOT_PATIENCE.quitProgram(); //Change bot status to offline
         HelloAndGoodbye.chatBotSaysBye(); //Bot says bye
     }
 
     public boolean botIsAlive(){
-        return (BOTPATIENCE.chatBotIsOnline() && BOTPATIENCE.isBotPatient());
+        return (BOT_PATIENCE.chatBotIsOnline() && BOT_PATIENCE.isBotPatient());
     }
+
+    private int assertIndex(String[] keyword){
+        Parser parser = new Parser();
+        int taskNumber = parser.getTaskNumber(keyword[1]);
+
+        assert taskNumber > 0;
+        return taskNumber;
+    }
+
 
     /**
      * marks or unmarks task based on given index
@@ -84,15 +94,14 @@ public class Duke {
      * "mark 1" - Correct input, but no such Task Index exists: IndexOutOfBoundsException
      */
     public void markUserIndex(String[] keyword){
-        int validTaskNumber = -1;
+        int validTaskNumber = INVALID_TASK_NUMBER; //indicates failure condition
 
         try {
-            Parser parser = new Parser();
+            int taskNumber = assertIndex(keyword);
 
-            int taskNumber = parser.getTaskNumber(keyword[1]);
             duke.ui.TaskFeedback.searchTaskToMark(taskNumber);
 
-            if (parser.taskNumberIsValid(taskNumber, tasks)) {
+            if (duke.logic.Parser.taskNumberIsValid(taskNumber, tasks)) {
                 validTaskNumber = taskNumber;
             }
                 int index = validTaskNumber - 1;
@@ -112,6 +121,9 @@ public class Duke {
         catch (IndexOutOfBoundsException e){
             DukeException.getError(DukeException.indexOutOfBounds("mark"));
         }
+        catch (AssertionError e){
+            System.out.println("assert failed. Task number is negative");
+        }
     }
 
     /**
@@ -122,13 +134,13 @@ public class Duke {
      * "delete 1" - Correct input, but no such Task Index exists: IndexOutOfBoundsException
      */
     public void keywordDelete(String[] keyword) {
-        int validTaskNumber = -1; //indicates failure condition
+        int validTaskNumber = INVALID_TASK_NUMBER; //indicates failure condition
 
         try{
-            Parser parser = new Parser();
-            int taskNumber = parser.getTaskNumber(keyword[1]); //get task number from 2nd word
-            if (parser.taskNumberIsValid(taskNumber, tasks)) {
-                validTaskNumber = taskNumber; // Changes value from -1 to valid index
+            int taskNumber = assertIndex(keyword);
+
+            if (duke.logic.Parser.taskNumberIsValid(taskNumber, tasks)) {
+                validTaskNumber = taskNumber; // Changes value to valid index
             }
 
             String s = tasks.getTaskBeforeDelete(validTaskNumber); //get String for undo
@@ -146,6 +158,10 @@ public class Duke {
         catch (IndexOutOfBoundsException e){
             DukeException.getError(DukeException.indexOutOfBounds("delete"));
         }
+        catch (AssertionError e){
+            System.out.println("assert failed. Task number is negative");
+        }
+
     }
 
     /**
@@ -157,7 +173,7 @@ public class Duke {
         int taskSize = tasks.printTaskList(s);
         duke.ui.TaskFeedback.postTaskSizeFeedback(taskSize);
 
-        BOTPATIENCE.resetImpatience();
+        BOT_PATIENCE.resetImpatience();
     }
 
     /**
@@ -210,7 +226,7 @@ public class Duke {
         tasks.printTaskList();
         duke.ui.TaskFeedback.postTaskSizeFeedback(taskSize);
 
-        BOTPATIENCE.resetImpatience();
+        BOT_PATIENCE.resetImpatience();
     }
 
     /**
@@ -234,25 +250,25 @@ public class Duke {
     public boolean isGeneralKeyword(String trimmedUserInput){
 
         if (trimmedUserInput.isBlank() || trimmedUserInput.isEmpty()) {
-            BOTPATIENCE.botBecomesImpatient();
-            PatienceFeedback.soundOffPatienceLevel(BOTPATIENCE.botPatienceMeter());
+            BOT_PATIENCE.botBecomesImpatient();
+            PatienceFeedback.soundOffPatienceLevel(BOT_PATIENCE.botPatienceMeter());
             return true;
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("bye") || trimmedUserInput.equalsIgnoreCase("quit")){
-            BOTPATIENCE.quitProgram();
+            BOT_PATIENCE.quitProgram();
             return true;
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("list")){
             handleList();
-            BOTPATIENCE.resetImpatience();
+            BOT_PATIENCE.resetImpatience();
             return true;
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("help") || trimmedUserInput.equalsIgnoreCase("faq")){
-            duke.ui.JenkinsUI.getHelp();
-            BOTPATIENCE.resetImpatience();
+            duke.ui.SuggestFeedback.getHelp();
+            BOT_PATIENCE.resetImpatience();
             return true;
         }
 
@@ -260,13 +276,13 @@ public class Duke {
             duke.ui.JenkinsUI.acknowledgeChangeBotNameIntent();
             BotName.changeBotName(duke.logic.Parser.tidyUserInput());
             duke.ui.JenkinsUI.changeBotNameSuccess();
-            BOTPATIENCE.resetImpatience();
+            BOT_PATIENCE.resetImpatience();
             return true;
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("undo")){
             handleUndo();
-            BOTPATIENCE.resetImpatience();
+            BOT_PATIENCE.resetImpatience();
             return true;
         }
 
@@ -279,7 +295,7 @@ public class Duke {
      * Undo records userInput in Stack
      */
     public void scanAdvanceKeywords(String trimmedUserInput)  {
-        BOTPATIENCE.resetImpatience();
+        BOT_PATIENCE.resetImpatience();
         boolean isDeadlineEvent = false, isMarkDeleteOrFind = false;
 
         String[] keyword = trimmedUserInput.split(" ", 2);

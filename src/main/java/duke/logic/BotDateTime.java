@@ -30,8 +30,8 @@ public class BotDateTime {
 
     /**
      * checks if string can convert to date.
-     * @param dateTime
-     * @return
+     * @param dateTime date and time
+     * @return if user input is a valid string format
      */
     public static boolean stringIsValidDateFormat(String dateTime) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(EXPECTED_DATE_TIME_FORMAT);
@@ -40,7 +40,7 @@ public class BotDateTime {
             // Parse the user input into a Date object
             Date date = dateFormat.parse(dateTime);
             return true;
-        } catch (Exception e) {
+        } catch (ParseException e) {
             System.out.println("Invalid date format entered.");
             return false;
         }
@@ -52,7 +52,6 @@ public class BotDateTime {
      */
     public static String saveDateTime(String dateTime) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HHmm");
-
 
         try {
             Date date = dateFormat.parse(dateTime);

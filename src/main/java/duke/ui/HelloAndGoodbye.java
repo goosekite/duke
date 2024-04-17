@@ -6,7 +6,7 @@ public class HelloAndGoodbye {
 
     public static void chatBotSaysHello() {
         String botName = BotName.getChatBotName();
-        duke.ui.JenkinsUI.printLogo();
+        duke.ui.ASCII.printLogo();
         System.out.println(botName + ": Hello! you may call me " + botName + ". I remember it, so you don't have to!");
         System.out.println("What can I do for you?");
     }

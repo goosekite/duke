@@ -18,7 +18,7 @@ public class Storage {
     protected final String FILE_PATH_FOR_TASK_LIST = "src/main/data/duke.txt";
     protected final String FILE_PATH_FOR_DATETIME = "src/main/data/lastAccessed.txt";
 
-    /** Creates a constructor and sets a default file path */
+    /** Default constructor ensures Task list and time stamp file exists */
     public Storage() {
         ensureTaskListFileExists();
         ensureTimeStampFileExists();
@@ -114,6 +114,9 @@ public class Storage {
 
     }
 
+    /**
+     * Reads Time stamp from file
+     */
     public void loadDataTimeStamp() {
         File file = new File(FILE_PATH_FOR_DATETIME); // Create a File object representing the file
 
@@ -123,7 +126,6 @@ public class Storage {
         //Read & inform user last access date
         try {
             if (file.createNewFile()) {
-                //Saved created
                 duke.ui.DateTimeFeedback.cantFindTimeStampSoIWillRecreate(formattedDateTime);
                 saveDateTimeStamp();
             }
@@ -140,6 +142,9 @@ public class Storage {
         }
     }
 
+    /**
+     * Reads Time stamp from file
+     */
     public void saveDateTimeStamp() {
         File file = new File(FILE_PATH_FOR_DATETIME);
 

@@ -4,7 +4,7 @@ import java.util.Stack;
 
 public class BotUndo {
 
-    static Stack<String> undo = new Stack<>();
+    static Stack<String> undo = new Stack<>(); //a stack container to hold all user input (as string) to undo actions
 
     /**
      * @param s holds the userInput to enable UNDO
