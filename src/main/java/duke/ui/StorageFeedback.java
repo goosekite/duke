@@ -21,6 +21,9 @@ public class StorageFeedback {
         System.out.println("I've created " + f.getName() + " because " + context + " doesn't exist in our database");
     }
 
+    public static void noFolderFound(File f){
+        System.out.println("I've created " + f.getName() + " because " + "the folder" + " doesn't exist in our database");
+    }
 
 
 }

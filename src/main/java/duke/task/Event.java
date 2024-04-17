@@ -14,7 +14,7 @@ public class Event extends Task {
     /** override ToString method for event format */
     @Override
     public String toString() {
-        return "[E]" + super.toString() + " (from: " + start + " to: " + end + " )";
+        return "[E]" + super.toString() + " (from: " + start + " to: " + end + ")";
     }
 
     /** change event format to user input */

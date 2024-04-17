@@ -110,7 +110,7 @@ public class Duke {
                 duke.ui.TaskFeedback.displayMarkedTask(taskNumber, t.taskIsDone(t), t.getStatusIcon(), t.getTaskDescription());
 
             BotUndo.addToStack("mark " + keyword[1]); //Undo remembers how to remark task
-            System.out.println("mark " + keyword[1]);
+
         }
         catch (NumberFormatException e){
             DukeException.getError(DukeException.expectIntegerButInputIsString("mark"));
@@ -241,6 +241,12 @@ public class Duke {
         BotUndo.removeFromStack();
     }
 
+    public void handleDeleteAll(){
+        tasks.deleteAllTask();
+        duke.ui.TaskFeedback.cleanedState();
+        duke.ui.HelloAndGoodbye.chatBotSaysHello();
+    }
+
     /**
      * Parse keywords to decide which command to run
      * These safe keywords will never trigger DukeExceptions
@@ -282,6 +288,12 @@ public class Duke {
 
         else if (trimmedUserInput.equalsIgnoreCase("undo")){
             handleUndo();
+            BOT_PATIENCE.resetImpatience();
+            return true;
+        }
+
+        else if (trimmedUserInput.equalsIgnoreCase("delete all")){
+            handleDeleteAll();
             BOT_PATIENCE.resetImpatience();
             return true;
         }

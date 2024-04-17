@@ -15,6 +15,6 @@ public class ToDo extends Task {
 
     /** change ToDo format to user input */
     public String convertToCommand(){
-        return description;
+        return this.description;
     }
 }

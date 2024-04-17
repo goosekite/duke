@@ -26,7 +26,7 @@ public class Task {
     }
 
     /**
-     * Created to be overridden by child classes [deadline], [event] & [todo]
+     * gets override by child classes [deadline], [event] & [todo]
      * @return appropriate [task type][mark status][task description]
      */
     public String toString(){
@@ -34,8 +34,8 @@ public class Task {
     }
 
     /**
-     * Created to be overridden by child classes [deadline], [event] & [todo]
      * Translates task list syntax back to user command
+     * Created to be overridden by child classes [deadline], [event] & [todo]
      * @return reconstructed userInput for Storage class
      */
     public String convertToCommand(){
@@ -58,6 +58,11 @@ public class Task {
     public void deleteTask(int taskNo) {
         tasksStorage.remove(taskNo - 1); //When user says delete 1, means delete index 0
         taskSize--;
+    }
+
+    public void deleteAllTask() {
+        tasksStorage.clear();
+        taskSize = 0;
     }
 
     /**
@@ -143,7 +148,8 @@ public class Task {
 
     //Get temporary string for undo method
     public String getTaskBeforeDelete(int taskNumber){
-        return tasksStorage.get(taskNumber-1).convertToCommand();
+        Task t = tasksStorage.get(taskNumber-1);
+        return t.convertToCommand();
     }
 
     //Retrieve & Update Boolean isDone

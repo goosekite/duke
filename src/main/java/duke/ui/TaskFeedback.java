@@ -57,4 +57,8 @@ public class TaskFeedback {
         System.out.println("Certainly, I've deleted " + taskDescription);
     }
 
+    public static void cleanedState(){
+        System.out.println("As you wish! Let's start over in a clean state!");
+    }
+
 }

@@ -12,8 +12,8 @@ import duke.exception.DukeException;
 
 public class Storage {
 
-    protected final String FILE_PATH_FOR_TASK_LIST = "./duke.txt";
-    protected final String FILE_PATH_FOR_DATETIME = "./lastAccessed.txt";
+    protected final String FILE_PATH_FOR_TASK_LIST = "./dukeData/duke.txt";
+    protected final String FILE_PATH_FOR_DATETIME = "./dukeData/lastAccessed.txt";
 
     /** Default constructor ensures Task list and time stamp file exists */
     public Storage() {
@@ -28,17 +28,32 @@ public class Storage {
     public void ensureTaskListFileExists() {
         // Use getResourceAsStream to load resource from classpath
         try (InputStream taskListStream = getClass().getResourceAsStream(FILE_PATH_FOR_TASK_LIST)) {
+
+
+            File dataFolder = new File("dukeData");
+            dataFolder.mkdirs(); // Create the "data" folder if it doesn't exist
+            File newFile = new File(dataFolder, "duke.txt");
+
+            if (newFile.createNewFile()) {
+                duke.ui.StorageFeedback.noFolderFound(dataFolder);
+            }
+
+            else
+            {
+                duke.ui.StorageFeedback.foundFileToLoad("task list folder");
+            }
+
             File taskListPathFile = new File(FILE_PATH_FOR_TASK_LIST);
 
             if (taskListStream == null && taskListPathFile.createNewFile()) {
                 duke.ui.StorageFeedback.noFileFound(taskListPathFile, "task list");
             }
             else {
-                duke.ui.StorageFeedback.foundFileToLoad("task list");
+                duke.ui.StorageFeedback.foundFileToLoad("task list file");
             }
         } catch (IOException e) {
             // Error handling
-            duke.ui.StorageFeedback.foundFileToLoad("task list");
+            duke.ui.StorageFeedback.foundFileToLoad("task list file");
         }
     }
 
@@ -54,7 +69,7 @@ public class Storage {
                 System.out.println("Time Stamp File created: " + timeStampPathFile.getName());
             }
             else{
-                duke.ui.StorageFeedback.foundFileToLoad("time stamp");
+                duke.ui.StorageFeedback.foundFileToLoad("time stamp file");
             }
 
         } catch (IOException e) {
