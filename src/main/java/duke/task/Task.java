@@ -6,7 +6,6 @@ import java.util.ArrayList;
 /** Parent Class for Deadline, Event and To do */
 public class Task {
     private ArrayList<Task> tasksStorage;
-
     protected String description;
     protected boolean isDone;
 
@@ -130,7 +129,6 @@ public class Task {
             return "";
         }
 
-        //https://stackoverflow.com/questions/14534767/how-to-append-a-newline-to-stringbuilder
         for (Task t : tasksStorage) {
             sb.append(t.convertToCommand());
             sb.append(System.lineSeparator());
@@ -178,6 +176,5 @@ public class Task {
     public Task retrieveTaskDetails(int taskIndex){
         return tasksStorage.get(taskIndex);
     }
-
 
 }

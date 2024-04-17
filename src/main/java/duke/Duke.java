@@ -6,36 +6,36 @@ import duke.logic.Parser;
 import duke.storage.Storage;
 import duke.task.*;
 import duke.ui.HelloAndGoodbye;
-import duke.ui.JenkinsUI;
 import duke.logic.BotPatience;
 import duke.exception.DukeException;
 import duke.ui.PatienceFeedback;
 
 import java.util.Queue;
 
-
 public class Duke {
 
     private static Task tasks;
-    private final JenkinsUI ui;
-    private final Parser parser;
-    private final Storage storage;
-    private final BotPatience botPatience;
+    private final Parser PARSER;
+    private final Storage STORAGE;
+    private final BotPatience BOTPATIENCE;
 
 
     public Duke(){
         tasks = new Task();
-        ui = new JenkinsUI();
-        parser = new Parser();
-        botPatience = new BotPatience();
-        storage = new Storage();
+        PARSER = new Parser();
+        BOTPATIENCE = new BotPatience();
+        STORAGE = new Storage();
 
+    }
+
+    public static void main(String[] args) {
+        new Duke().run();
     }
 
     /** Creates task list by using user commands from text file */
     public void createTaskListFromStorage(){
-        Queue<String> queue = storage.loadData();
-        storage.loadDataTimeStamp();
+        Queue<String> queue = STORAGE.loadData();
+        STORAGE.loadDataTimeStamp();
 
         while (!queue.isEmpty()){ //Access queue, process stored user input & dequeue until empty
             String s = queue.peek();
@@ -68,15 +68,15 @@ public class Duke {
      */
     public void shutDownProperly(){
         String s = tasks.printTaskListForRecording(); //Converts all tasks to string
-        storage.saveDataToStorage(s); //Saves tasks to Storage
-        storage.saveDateTimeStamp(); //Saves time stamp;
+        STORAGE.saveDataToStorage(s); //Saves tasks to Storage
+        STORAGE.saveDateTimeStamp(); //Saves time stamp;
 
-        botPatience.quitProgram(); //Change bot status to offline
+        BOTPATIENCE.quitProgram(); //Change bot status to offline
         HelloAndGoodbye.chatBotSaysBye(); //Bot says bye
     }
 
     public boolean botIsAlive(){
-        return (botPatience.chatBotIsOnline() && botPatience.isBotPatient());
+        return (BOTPATIENCE.chatBotIsOnline() && BOTPATIENCE.isBotPatient());
     }
 
     /**
@@ -90,10 +90,10 @@ public class Duke {
         int validTaskNumber = -1;
 
         try {
-            int taskNumber = parser.getTaskNumber(keyword[1]);
+            int taskNumber = PARSER.getTaskNumber(keyword[1]);
             duke.ui.TaskFeedback.searchTaskToMark(taskNumber);
 
-            if (parser.taskNumberIsValid(taskNumber, tasks)) {
+            if (PARSER.taskNumberIsValid(taskNumber, tasks)) {
                 validTaskNumber = taskNumber;
             }
                 int index = validTaskNumber - 1;
@@ -126,8 +126,8 @@ public class Duke {
         int validTaskNumber = -1; //indicates failure condition
 
         try{
-            int taskNumber = parser.getTaskNumber(keyword[1]); //get task number from 2nd word
-            if (parser.taskNumberIsValid(taskNumber, tasks)) {
+            int taskNumber = PARSER.getTaskNumber(keyword[1]); //get task number from 2nd word
+            if (PARSER.taskNumberIsValid(taskNumber, tasks)) {
                 validTaskNumber = taskNumber; // Changes value from -1 to valid index
             }
 
@@ -149,7 +149,7 @@ public class Duke {
     }
 
     /**
-     * Search for all tasks containing userinput keywork
+     * Search for all tasks containing userInput keyword
      * */
     public void keywordFind(String[] keyword){
 
@@ -157,7 +157,7 @@ public class Duke {
         int taskSize = tasks.printTaskList(s);
         duke.ui.TaskFeedback.postTaskSizeFeedback(taskSize);
 
-        botPatience.resetImpatience();
+        BOTPATIENCE.resetImpatience();
     }
 
     /**
@@ -210,10 +210,8 @@ public class Duke {
         tasks.printTaskList();
         duke.ui.TaskFeedback.postTaskSizeFeedback(taskSize);
 
-        botPatience.resetImpatience();
+        BOTPATIENCE.resetImpatience();
     }
-
-
 
     /**
      * Peek Undo Stack to retrieve latest user input
@@ -227,7 +225,6 @@ public class Duke {
         BotUndo.removeFromStack();
     }
 
-
     /**
      * Parse keywords to decide which command to run
      * These safe keywords will never trigger DukeExceptions
@@ -237,42 +234,41 @@ public class Duke {
     public boolean isGeneralKeyword(String trimmedUserInput){
 
         if (trimmedUserInput.isBlank() || trimmedUserInput.isEmpty()) {
-            botPatience.botBecomesImpatient();
-            PatienceFeedback.soundOffPatienceLevel(botPatience.botPatienceMeter());
+            BOTPATIENCE.botBecomesImpatient();
+            PatienceFeedback.soundOffPatienceLevel(BOTPATIENCE.botPatienceMeter());
             return true;
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("bye") || trimmedUserInput.equalsIgnoreCase("quit")){
-            botPatience.quitProgram();
+            BOTPATIENCE.quitProgram();
             return true;
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("list")){
             handleList();
-            botPatience.resetImpatience();
+            BOTPATIENCE.resetImpatience();
             return true;
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("help") || trimmedUserInput.equalsIgnoreCase("faq")){
-            ui.getHelp();
-            botPatience.resetImpatience();
+            duke.ui.JenkinsUI.getHelp();
+            BOTPATIENCE.resetImpatience();
             return true;
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("change bot name")){
-            ui.acknowledgeChangeBotNameIntent();
+            duke.ui.JenkinsUI.acknowledgeChangeBotNameIntent();
             BotName.changeBotName(duke.logic.Parser.tidyUserInput());
-            ui.changeBotNameSuccess();
-            botPatience.resetImpatience();
+            duke.ui.JenkinsUI.changeBotNameSuccess();
+            BOTPATIENCE.resetImpatience();
             return true;
         }
 
         else if (trimmedUserInput.equalsIgnoreCase("undo")){
             handleUndo();
-            botPatience.resetImpatience();
+            BOTPATIENCE.resetImpatience();
             return true;
         }
-
 
         return false; //Remembers user command is not found in general stack
     }
@@ -282,11 +278,11 @@ public class Duke {
      * Labelled as advance keywords because every method here can trigger DukeExceptions
      * Undo records userInput in Stack
      */
-    public void scanAdvanceKeywords(String userInput)  {
-        botPatience.resetImpatience();
+    public void scanAdvanceKeywords(String trimmedUserInput)  {
+        BOTPATIENCE.resetImpatience();
         boolean isDeadlineEvent = false, isMarkDeleteOrFind = false;
 
-        String[] keyword = userInput.split(" ", 2);
+        String[] keyword = trimmedUserInput.split(" ", 2);
 
         //Level 4-0 Mark
         switch (keyword[0]){
@@ -308,14 +304,14 @@ public class Duke {
         }
 
         // Level 4-2 Deadlines
-        if (userInput.contains("by ")){
-            keywordBy(userInput);
+        if (trimmedUserInput.contains("by ")){
+            keywordBy(trimmedUserInput);
             isDeadlineEvent = true;
         }
 
         // Level 4-3 Events
-        if (userInput.contains("from ") && userInput.contains("to ")){
-            keywordFromTo(userInput);
+        if (trimmedUserInput.contains("from ") && trimmedUserInput.contains("to ")){
+            keywordFromTo(trimmedUserInput);
             isDeadlineEvent = true; //corner case from from to to
         }
 
@@ -323,8 +319,8 @@ public class Duke {
           @param isMarkDeleteOrFind prevents user from saving keyword "mark" "delete" as Task
           @param isDeadlineEvent prevents bot from saving userInput 2 times: 1st as Deadline/Event. 2nd as Task
          */
-        if (!isMarkDeleteOrFind && !isDeadlineEvent && !userInput.equals("undo") && !userInput.contains("delete")){
-            keywordTask(userInput);
+        if (!isMarkDeleteOrFind && !isDeadlineEvent && !trimmedUserInput.equals("undo") && !trimmedUserInput.contains("delete")){
+            keywordTask(trimmedUserInput);
         }
     }
 
@@ -339,9 +335,5 @@ public class Duke {
         if (!isGeneralKeyword(userInput)){
             scanAdvanceKeywords(userInput);
         }
-    }
-
-    public static void main(String[] args) {
-        new Duke().run();
     }
 }

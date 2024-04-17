@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 
 public class Parser {
 
-
     /** Creates a default constructor */
     public Parser(){
     }
@@ -31,7 +30,6 @@ public class Parser {
     public boolean taskNumberIsValid(int taskNo, Task tasks) {
         return taskNo <= tasks.getTaskSize() && taskNo > 0;
     }
-
 
     public static Deadline keywordBy(String userInput) {
         Pattern pattern = Pattern.compile("(.+) by (.+)");
@@ -78,14 +76,6 @@ public class Parser {
                 duke.ui.SuggestFeedback.helpUsingFromToKeyword();
                 return null;
             }
-
-
-//
-//            Event event = new Event(eventDescription, start, end);
-//            tasks.createTask(event);
-//            duke.ui.TaskFeedback.userAddedEvent(userInput);
-//            BotUndo.addToStack("delete " + tasks.getTaskSize());
-//        }
 
     }
 

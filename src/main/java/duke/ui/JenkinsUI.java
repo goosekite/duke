@@ -6,11 +6,11 @@ public class JenkinsUI {
 
     protected static String botName = BotName.getChatBotName();
 
-    public void acknowledgeChangeBotNameIntent() {
+    public static void acknowledgeChangeBotNameIntent() {
         System.out.println(BotName.getChatBotName() + ": Sure! Please key in my new name");
     }
 
-    public void changeBotNameSuccess() {
+    public static void changeBotNameSuccess() {
         botName = BotName.getChatBotName();
         System.out.println(botName + ": Right away!");
     }
@@ -32,7 +32,10 @@ public class JenkinsUI {
         System.out.println("____________________________________________________________");
     }
 
-    public void getHelp() {
+    /**
+     * Prints all commands user can use
+     */
+    public static void getHelp() {
         botName = BotName.getChatBotName();
         System.out.println(botName + ": Certainly! Here are all commands that I can understand:");
         System.out.println("help or {.} - prints this help list to help recall");
