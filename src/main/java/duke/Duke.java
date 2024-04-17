@@ -15,17 +15,14 @@ import java.util.Queue;
 public class Duke {
 
     private static Task tasks;
-    private final Parser PARSER;
     private final Storage STORAGE;
     private final BotPatience BOTPATIENCE;
 
 
     public Duke(){
         tasks = new Task();
-        PARSER = new Parser();
         BOTPATIENCE = new BotPatience();
         STORAGE = new Storage();
-
     }
 
     public static void main(String[] args) {
@@ -90,10 +87,12 @@ public class Duke {
         int validTaskNumber = -1;
 
         try {
-            int taskNumber = PARSER.getTaskNumber(keyword[1]);
+            Parser parser = new Parser();
+
+            int taskNumber = parser.getTaskNumber(keyword[1]);
             duke.ui.TaskFeedback.searchTaskToMark(taskNumber);
 
-            if (PARSER.taskNumberIsValid(taskNumber, tasks)) {
+            if (parser.taskNumberIsValid(taskNumber, tasks)) {
                 validTaskNumber = taskNumber;
             }
                 int index = validTaskNumber - 1;
@@ -126,8 +125,9 @@ public class Duke {
         int validTaskNumber = -1; //indicates failure condition
 
         try{
-            int taskNumber = PARSER.getTaskNumber(keyword[1]); //get task number from 2nd word
-            if (PARSER.taskNumberIsValid(taskNumber, tasks)) {
+            Parser parser = new Parser();
+            int taskNumber = parser.getTaskNumber(keyword[1]); //get task number from 2nd word
+            if (parser.taskNumberIsValid(taskNumber, tasks)) {
                 validTaskNumber = taskNumber; // Changes value from -1 to valid index
             }
 

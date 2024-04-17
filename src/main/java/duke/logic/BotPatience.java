@@ -8,9 +8,9 @@ package duke.logic;
  */
 public class BotPatience {
 
-    final byte BOT_MAX_PATIENCE = 3;
-    public byte blankUserInputCount = 0;
-    protected Boolean isOnline = true;
+    private final byte BOT_MAX_PATIENCE = 3;
+    private byte blankUserInputCount = 0;
+    private boolean isOnline = true;
 
     /**
      * @return number of chance bot will accept a blank input
